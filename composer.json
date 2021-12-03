@@ -1,0 +1,52 @@
+{
+  "name": "kngell/appcore",
+  "description": "k'ngell framwork for applications",
+  "keywords": [
+    "framework",
+    "php",
+    "appcore"
+  ],
+  "type": "librairie",
+  "license": "MIT",
+  "readme": "",
+  "time": "",
+  "support": {
+    "issues": "https://github.com/kngell/kngell_new_framwork/issues",
+    "source": "https://github.com/kngell/kngell_new_framwork",
+    "wiki": "https://github.com/kngell/kngell_new_framwork/wiki"
+  },
+  "authors": [
+    {
+      "name": "kngeell",
+      "email": "admin@kngell.com",
+      "role": "manager"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^8.0",
+    "ext-mbstring": "*",
+    "ext-iconv": "*",
+    "ext-pdo": "*",
+    "ext-json": "*",
+    "ext-intl": "*",
+    "ext-curl": "*",
+    "ext-simplexml": "*",
+    "symfony/var-dumper": "^5.3",
+    "symfony/yaml": "^5.3",
+    "brick/money": "^0.5.2",
+    "stripe/stripe-php": "^7.97",
+    "symfony/http-foundation": "^5.3",
+    "phpmailer/phpmailer": "^6.5",
+    "sendgrid/sendgrid": "^7.9"
+  },
+  "autoload": {
+    "classmap": [
+      "app/"
+    ],
+    "files": [
+      "config/global/config.php"
+    ]
+  },
+  "autoload-dev": {}
+}

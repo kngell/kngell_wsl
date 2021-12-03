@@ -1,0 +1,92 @@
+@use "corecss/variables" as *
+@use "corecss/mixins" as *
+:root
+    --primary-color: rgb(49, 100, 167)
+*,*::before,*::after
+    box-sizing: border-box
+.multistep-frm-wrapper
+    font-family: $font-monserrat, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    margin: 0
+    display: grid
+    place-items: center
+    width: 100%
+    min-height: 100%
+    .user-ckeckout-frm
+        width: clamp(80%,3%,100%)
+        margin: 0 auto
+        border: 1px solid #ccc
+        border-radius: .35rem
+        padding: 1.5rem
+        .progressbar
+            position: relative
+            display: flex
+            justify-content: space-between
+            counter-reset: step
+            margin: 2rem 0 4rem
+            &::before, .progress
+                content: ""
+                position: absolute
+                top: 50%
+                transform: translateY(-50%)
+                height: .25rem
+                width: 100%
+                background-color: #dcdcdc
+                z-index: -1
+            .progress
+                background-color: var(--primary-color)
+                width: 0%
+                transition: .3s
+            .progress-step
+                width: 2.1875rem
+                height: 2.1875rem
+                background-color: #dcdcdc
+                border-radius: 50%
+                display: flex
+                justify-content: center
+                align-items: center
+                &::before
+                    counter-increment: step
+                    content: counter(step)
+                &::after
+                    content: attr(data-title)
+                    position: absolute
+                    top: calc( 100% - .5rem )
+                    font-size: .85rem
+                    margin-top: 1rem
+                    color: #666
+            .progress-step-active
+                background-color: var(--primary-color)
+                color: #f3f3f3
+        .form-step
+            display: none
+            transform-origin: top
+            animation: animate .5s
+        .form-step-active
+            display: block
+        .width-50
+            width: 50%
+        .ml-auto
+            margin-left: auto
+        .text-center
+            text-align: center
+        .btns-group
+            .btn-first, .btn-next,.btn-prev,#complete-order, #pay-now
+                +button($dark-yellow,$dark-yellow-light,.225rem,uppercase,0.125rem 1rem)
+                display: block!important
+                height: 2.5rem
+                margin: .625rem auto
+                vertical-align: middle
+                width: 100%
+                text-align: center
+            #pay-now
+                +button($green-light,$green-very-light,.225rem,uppercase,0.125rem 1rem) 
+@keyframes animate
+    from
+        transform: scale(1,0)
+        opacity: 0
+    to
+        transform: scale(1,1)
+        opacity: 1
+
+        
+        

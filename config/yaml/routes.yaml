@@ -1,0 +1,230 @@
+# Get Http routees=============================================================================================
+get:
+  # Errorscontroller -----------------------------------------------------------------------------------------
+  errors:
+    controller: errors
+    method: index
+  # Home controller -------------------------------------------------------------------------------------------
+  "/":
+    controller: home
+    method: index
+  home:
+    controller: home
+    method: index
+  promotions:
+    controller: home
+    method: promotions
+  boutique:
+    controller: home
+    method: boutique
+  profile:
+    controller: Auth
+    method: profile
+  cart:
+    controller: home
+    method: cart
+  product:
+    controller: home
+    method: product
+  contact:
+    controller: home
+    method: contact
+  test:
+    controller: test
+    method: test
+    # Restricted Controller -------------------------------------------------------------------------------------------
+  restricted:
+    controller: restricted
+    method: index
+    # Assets Controller -------------------------------------------------------------------------------------------
+  assets:
+    controller: assets
+    method: get_asset
+  # Clothing Controller -------------------------------------------------------------------------------------------
+  Clothing:
+    controller: clothing
+    method: clothing
+  details:
+    controller: clothing
+    method: details
+
+  #Users Controller -------------------------------------------------------------------------------------------
+  checkout:
+    controller: users
+    method: checkout
+  checkout2:
+    controller: users
+    method: checkout2
+
+  account:
+    controller: users
+    method: account
+  payment_success:
+    controller: users
+    method: payment_success
+  # Backend Admin controller-----------------------------------------------------------------------------------
+  admin:
+    controller: admin
+    method: index
+  analytics:
+    controller: admin
+    method: analytics
+  allusers:
+    controller: admin
+    method: allusers
+  admin_sideUserprofile:
+    controller: admin
+    method: profile
+  UserPermissions:
+    controller: admin
+    method: permissions
+  allproducts:
+    controller: admin
+    method: allproducts
+  allbrands:
+    controller: admin
+    method: allbrands
+  allcategories:
+    controller: admin
+    method: allcategories
+  allunits:
+    controller: admin
+    method: allunits
+  adminproduct_details:
+    controller: admin
+    method: product_details
+  adminnew_product:
+    controller: admin
+    method: new_product
+  shippingClass:
+    controller: admin
+    method: shippingClass
+  allcompanies:
+    controller: admin
+    method: allcompanies
+  allwarehouses:
+    controller: admin
+    method: allwarehouses
+  alltaxes:
+    controller: admin
+    method: alltaxes
+  orders:
+    controller: admin
+    method: orders
+  calendar:
+    controller: admin
+    method: calendar
+  settings:
+    controller: admin
+    method: settings
+  sliders:
+    controller: admin
+    method: settings
+  allposts:
+    controller: admin
+    method: allposts
+# POST Http routes=============================================================================================
+post:
+  # Visitors Controller -------------------------------------------------------------------------------------------
+  visitors:
+    controller: visitors
+    method: track
+  # AuthController -------------------------------------------------------------------------------------------
+  ajaxlogin:
+    controller: auth
+    method: ajaxLogin
+  logout:
+    controller: auth
+    method: logout
+  deleteUserAccount:
+    controller: auth
+    method: deleteUserAccount
+  ajaxregister:
+    controller: auth
+    method: ajaxregister
+  remember_me:
+    controller: auth
+    method: remember_check
+  # Checkout Controller -------------------------------------------------------------------------------------------
+  proceedtobuy:
+    controller: checkout
+    method: proceedtobuy
+  get_checkoutSession:
+    controller: checkout
+    method: get_checkoutSession
+  check_paymentMode:
+    controller: checkout
+    method: check_paymentMode
+  manage_changeEmail:
+    controller: checkout
+    method: manage_changeEmail
+  manage_changeShipping:
+    controller: checkout
+    method: manage_changeShipping
+  placeOrder:
+    controller: checkout
+    method: placeOrder
+  manage_changeAdress:
+    controller: checkout
+    method: manage_changeAdress
+  manage_AddAdress:
+    controller: checkout
+    method: manage_AddAdress
+  manage_paymentmodeselecterrors:
+    controller: checkout
+    method: manage_paymentmodeselecterrors
+  check_user_cart:
+    controller: checkout
+    method: check_user_cart
+  # Forms Controller -------------------------------------------------------------------------------------------
+  showDetails:
+    controller: forms
+    method: showDetails
+  update:
+    controller: forms
+    method: update
+  checkdelete:
+    controller: forms
+    method: checkdelete
+  showAll:
+    controller: forms
+    method: showAll
+  Add:
+    controller: forms
+    method: Add
+  edit:
+    controller: forms
+    method: edit
+  delete:
+    controller: forms
+    method: delete
+  editorImgUrl:
+    controller: forms
+    method: storeFiletUrl
+  cleanTempFiles:
+    controller: forms
+    method: cleanTempFiles
+  # Table controller -------------------------------------------------------------------------------------------
+  updateFromTable:
+    controller: table
+    method: update
+  # Guests Controller -------------------------------------------------------------------------------------------
+  get_countries:
+    controller: guests
+    method: get_countries
+  contact_form:
+    controller: guests
+    method: Add
+  toggleWishlistAndcCart:
+    controller: guests
+    method: toggleWishlistAndcCart
+  deleteFromGuestCart:
+    controller: guests
+    method: delete
+  AddFromGuestCart:
+    controller: guests
+    method: Add
+  # Guests Controller -------------------------------------------------------------------------------------------
+  settings:
+    controller: admin
+    method: settings

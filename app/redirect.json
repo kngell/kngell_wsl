@@ -1,0 +1,4 @@
+{
+  "UsersController": ["profile", "account", "payment"],
+  "AdminController": ["*"]
+}

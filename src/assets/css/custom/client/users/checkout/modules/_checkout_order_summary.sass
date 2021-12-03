@@ -1,0 +1,65 @@
+@use "corecss/variables" as *
+@use "corecss/mixins" as *
+.order-summary
+    .card-body
+        padding-bottom: 2rem
+        .header-title
+            color: $gray-standard
+        .order-resume
+            .product-line
+                .p-cell
+                    vertical-align: middle
+                .p-title
+                    color: $gray-dark-in
+                    font-size: .9rem
+                .p-price
+                    color: $dark-in
+                    font-size: .9rem
+                    font-weight: 600
+        .total
+            .sub-total
+                font-size: 1rem
+                font-weight: 600
+                border-bottom: 1px dashed $purple-dark
+            .res-tax-item,.total-shipping
+                font-style: italic
+                font-size: .8rem
+                text-transform: capitalize
+                td
+                    padding-bottom: 0
+            .total-ttc
+                font-size: 1.1rem
+                font-weight: 600
+                color: $dark-color
+                border-bottom: 1px solid $purple-dark
+                padding-bottom: 1.5rem
+        .code-achat
+            display: flex
+            justify-content: space-around
+            vertical-align: middle
+            line-height: .8rem
+            +input(100%,2.5rem,$gray-300,$radius,$dark-in,$white-green,$blue-light,$gray-dark,$white-bg,.8rem)
+            &__btn
+                +button($color-primary,$blue-dark,10px,lowercase)
+                margin-left: .5rem
+        .product-thumbnail-wrapper
+            position: relative
+            width: 60px
+            .product-thumbnail-quantity
+                font-size: 0.85em
+                font-weight: 500
+                line-height: 1.75em
+                white-space: nowrap
+                text-align: center
+                border-radius: 1.75em
+                background-color: rgba(114, 114, 114, 0.9)
+                color: #fff
+                box-sizing: border-box
+                min-width: 21px
+                height: 21px
+                padding: 0 0.58em
+                position: absolute
+                right: 13px
+                top: -8px
+                z-index: 50
+               

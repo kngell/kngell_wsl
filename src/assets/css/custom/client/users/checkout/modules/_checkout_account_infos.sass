@@ -1,0 +1,25 @@
+@use "corecss/variables" as *
+@use "corecss/mixins" as *
+.form-wrapper
+    width: 100%
+    height: auto
+    margin: 0px auto
+    background-color: $white-color
+    border-radius: 5px
+    +dflex()
+    .user-prim-data
+        width: 100%
+        +input(100%,2.5rem,$gray-300,$radius,$dark-in,$white-green,$blue-light,$gray-dark,$white-color)
+        +custom_select2($white-color,$gray-300)
+        .account-request
+            color: $gray-common
+        .checkbox
+            +checkbox($gray-common,$color-primary,$color-primary,$gray-variant,$white-smoke)
+            margin-top: 1rem
+        .return-to-cart
+            +button($dark-yellow,$dark-yellow-light)
+            text-decoration: none
+        .next
+            +button($color-primary,$blue-dark)
+            text-decoration: none
+            
