@@ -26,7 +26,7 @@ interface ModelInterface
      * --------------------------------------------------------------------------------------------------.
      * @param mixed $id
      * @param string $colID
-     * @return void
+     * @return null|delf
      */
     public function getDetails(mixed $id, string $colID = '') : ?self;
 

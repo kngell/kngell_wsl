@@ -142,7 +142,7 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $this->container->make($table . 'Manager'::class)->cleanUnusedUrls($data['folder']);
+                $this->container->make($table . 'Manager'::class)->cleanAllUrls();
                 $this->jsonResponse(['result' => 'success', 'msg' =>'ok']);
             } else {
                 $this->jsonResponse(['result' => 'error', 'msg' => FH::showMessage('warning text-center', 'Bad CSRF Token!')]);
@@ -205,7 +205,7 @@ class FormsController extends Controller
                             $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : '';
                             if ($model->manageCheckboxes($data)->save($data)->count() === 1) {
                                 (!empty($categories)) ? $model->saveCategories($categories, 'post_categorie') : '';
-                                if ($this->uploadHelper->manage_uploadImage($model->$colID, $data, $this->request, $this->container)) {
+                                if ($this->uploadHelper->manage_uploadImage($model, $data, $this->request, $this->container)) {
                                     $this->container->make(NotificationManager::class)->notify(AuthManager::currentUser()->userID, $data['notification'] ?? 'Admin', 'A' . $table . ' has been updated');
                                     $this->jsonResponse(['result' => 'success', 'msg' => $model->get_successMessage('update', isset($data['msg']) ? $data['msg'] : '')]);
                                 } else {

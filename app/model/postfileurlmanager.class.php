@@ -43,10 +43,10 @@ class PostFileUrlManager extends Model
      * @param string $table
      * @return bool
      */
-    public function cleanUnusedUrls(string $table = '') : bool
+    public function cleanAllUrls(string $id = '', string $folder = '') : bool
     {
         try {
-            $urls = $this->getAllItem(['where'=>[$this->_colIndex=>'IS NULL'], 'return_mode'=>'class']);
+            $urls = $id != '' && $folder != '' ? $this->getDbUrls($id, $folder) : $this->getAllItem(['where'=>[$this->_colIndex=>'IS NULL'], 'return_mode'=>'class']);
             $urlToRemove = [];
             if ($urls->count() > 0) {
                 foreach ($urls->get_results() as $key => $m) {
@@ -54,7 +54,7 @@ class PostFileUrlManager extends Model
                         $urlToRemove[] = basename(unserialize($m->fileUrl)[0]);
                     }
                 }
-                return $this->cleanFilesSystemUrls($urlToRemove, $table);
+                return $this->cleanFilesSystemUrls($urlToRemove, $folder);
             }
             return true;
         } catch (\Throwable $th) {

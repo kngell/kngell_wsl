@@ -101,7 +101,7 @@ abstract class AbstractModel implements ModelInterface
     }
 
     //Find first corresponding record
-    public function findFirst($params = []) : self
+    public function findFirst($params = []) : ?self
     {
         if (isset($params['return_mode']) && $params['return_mode'] == 'class' && !isset($params['class'])) {
             $params = array_merge($params, ['class' => get_class($this)]);
@@ -125,7 +125,7 @@ abstract class AbstractModel implements ModelInterface
      * After Find
      * ==========================================================================================================.
      * @param object $m
-     * @return void
+     * @return DataMapper
      */
     public function afterFind(?DataMapper $m = null) : DataMapper
     {

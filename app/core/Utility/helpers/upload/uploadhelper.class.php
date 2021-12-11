@@ -294,15 +294,16 @@ class UploadHelper
         }
     }
 
-    public function manage_uploadImage($lastID, $data, Request $request, container $container)
+    public function manage_uploadImage(Model $model, $data, Request $request, container $container)
     {
+        $errors = [];
         if (isset($data['folder']) && isset($data['imageUrlsAry'])) {
             $imgUrlsAry = $this->getMadiaAry($data, $request);
-            $tempUrls = $container->make(PostFileUrlManager::class)->getDbUrls($lastID, $data['folder']);
+            $tempUrls = $container->make(PostFileUrlManager::class)->getDbUrls($model->{$model->get_colID()}, $data['folder']);
             if ($tempUrls->count() > 0) {
                 switch (true) {
                     case empty($imgUrlsAry):
-                        $tempUrls->cleanUnusedUrls($data['folder']);
+                        $errors[] = $tempUrls->cleanAllUrls($model->{$model->get_colID()}, $data['folder']);
                         break;
                     default:
                         $bdUrlsAry = $this->getFileAryFromModel($tempUrls);
@@ -311,23 +312,25 @@ class UploadHelper
                                 if (($m = $this->getMediaModel($url, $tempUrls)) != null) {
                                     if (!isset($m->imgID) || ($m->imgID == null)) {
                                         $m->id = $m->pfuID;
-                                        $m->imgID = $lastID . $data['folder'];
+                                        $m->imgID = $model->{$model->get_colID()} . $data['folder'];
                                         if ($m->save()) {
-                                            !file_exists(IMAGE_ROOT_SRC . $data['folder'] . DS . basename($url)) ? copy(IMAGE_ROOT . $data['folder'] . DS . basename($url), IMAGE_ROOT_SRC . $data['folder'] . DS . basename($url)) : '';
+                                            if (!file_exists(IMAGE_ROOT_SRC . $data['folder'] . DS . basename($url))) {
+                                                $this->im->init(img_name:basename($url), source: IMAGE_ROOT . $data['folder'], destination: IMAGE_ROOT_SRC . $data['folder'])->resizeImage();
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                        $tempUrls->cleanUnusedUrls($data['folder']);
+                        $errors[] = $tempUrls->cleanUnusedUrls($data['folder']);
                         break;
                 }
             } else {
-                $tempUrls->saveFilesUrls($imgUrlsAry, $data['folder'], $lastID);
+                $errors[] = $tempUrls->saveFilesUrls($imgUrlsAry, $data['folder'], $model->{$model->get_colID()});
             }
-            return $tempUrls->cleanDiskFiles($data['folder']);
+            // return $tempUrls->cleanDiskFiles($data['folder']);
         }
-        return false;
+        return empty($ $errors) ? true : false;
     }
 
     // //remove unused urls

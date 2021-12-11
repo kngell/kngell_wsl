@@ -7,7 +7,7 @@ interface EntityManagerInterface
     /**
      * --------------------------------------------------------------------------------------------------
      * Insert query.
-     * @return string
+     * @return object
      */
     public function getCrud():Object;
 }

@@ -113,11 +113,11 @@ module.exports = {
           to: path.resolve(__dirname, "public", "assets", "img", "sliders"),
           noErrorOnMissing: true,
         },
-        {
-          from: path.join(__dirname, "src", "assets", "img", "posts"),
-          to: path.resolve(__dirname, "public", "assets", "img", "posts"),
-          noErrorOnMissing: true,
-        },
+        // {
+        //   from: path.join(__dirname, "src", "assets", "img", "posts"),
+        //   to: path.resolve(__dirname, "public", "assets", "img", "posts"),
+        //   noErrorOnMissing: true,
+        // },
       ],
     }),
   ],

@@ -21,7 +21,7 @@ class ImageManager
     public function init(string $img_name = '', string $source = '', string $destination = '') : self
     {
         $this->img_name = $img_name;
-        $this->img = $source != '' ? $source : $img_name;
+        $this->img = $source != '' ? $source . DS . $img_name : $img_name;
         $this->sourcePath = dirname($this->img);
         $this->destinationPath = $destination == '' ? $this->sourcePath : $destination;
         if (exif_imagetype($this->img)) {
@@ -112,11 +112,6 @@ class ImageManager
 
     private function save_image(GdImage $newImg)
     {
-        if (!file_exists(dirname($this->destinationPath . DS . $this->img_name))) {
-            mkdir(dirname($this->destinationPath), 0777, true);
-        } else {
-            chmod($this->destinationPath, 0777);
-        }
         if (isset($this->infos) && !file_exists($this->destinationPath . DS . $this->img_name)) {
             switch ($this->infos['mime']) {
             case 'image/png':

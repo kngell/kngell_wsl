@@ -20,7 +20,7 @@ class GlobalsManager implements GlobalsManagerInterface
      * Get Globals
      * =====================================================================.
      * @param string $key
-     * @return void
+     * @return SessionInterface
      * @throws GlobalManagerInvalidException
      */
     public static function get(string $key) :  SessionInterface

@@ -15,7 +15,7 @@ class Controller
     protected ControllerHelper $helper;
 
     /**
-     * @var BaseMiddleWare
+     * @var array
      */
     protected array $middlewares = [];
 

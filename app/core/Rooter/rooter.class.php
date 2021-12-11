@@ -73,7 +73,7 @@ class Rooter implements RooterInterface
     /**
      * Parse URL
      * ====================================================================================================.
-     * @return array
+     * @return string
      */
     public function parseUrl(?string $urlroute = null) : string
     {
