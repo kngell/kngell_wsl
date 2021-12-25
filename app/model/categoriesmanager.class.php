@@ -111,6 +111,9 @@ class CategoriesManager extends Model
             case 'taxes':
                 return 'categorieID';
                 break;
+            case 'posts' :
+                return 'categorie';
+                break;
 
             default:
                 return 'categorie';

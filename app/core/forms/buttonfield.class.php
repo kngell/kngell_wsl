@@ -5,9 +5,9 @@ class ButtonField extends BaseField
 {
     public string $type;
 
-    public function setType() : self
+    public function setType(string $type = '') : self
     {
-        $this->type = self::Type_BUTTON;
+        $this->type = $type == '' ? self::Type_BUTTON : $type;
         $this->withWrapper = true;
         return $this;
     }

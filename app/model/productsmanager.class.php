@@ -243,7 +243,7 @@ class ProductsManager extends Model
                 break;
                 default:
                 break;
-            }
+        }
     }
 
     /**

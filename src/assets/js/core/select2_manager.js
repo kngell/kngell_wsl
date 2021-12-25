@@ -30,6 +30,7 @@ export default class Upload {
       dropdownParent: params.hasOwnProperty("dropdownParent")
         ? params.dropdownParent
         : "",
+      multiple: params.hasOwnProperty("multiple") ? params.multiple : false,
     });
     plugin.select = select;
     return plugin;

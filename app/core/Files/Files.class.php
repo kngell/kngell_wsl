@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 class Files implements FileInterface
 {
+    /**
+     * Get Files
+     * ==============================================================================.
+     * @param string $folder
+     * @param string $file
+     * @return mixed
+     */
     public function get(string $folder, string $file = '') : mixed
     {
         $file = file_exists($folder . $file) ? [$folder . $file] : $this->search_file($folder, $file);
@@ -17,6 +24,22 @@ class Files implements FileInterface
             };
         }
 
+        return false;
+    }
+
+    public function createDir(string $folder) : bool
+    {
+        $path = realpath($folder);
+        if ($path !== false and is_dir($path)) {
+            return true;
+        } else {
+            try {
+                mkdir($folder);
+                return true;
+            } catch (\Throwable $th) {
+                throw new FileSystemManagementException('Impossible de créer le fichier! ' . $th->getMessage(), $th->getCode());
+            }
+        }
         return false;
     }
 

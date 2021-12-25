@@ -74,9 +74,10 @@ class Form
     public function begin(string $alertid = '')
     {
         $id = $alertid != '' ? $alertid : 'alertErr';
-
+        $enctype = $this->enctype != '' ? "enctype='%s'" : '%s';
+        $autocomplete = $this->autocomplete != '' ? "autocomplete='%s'" : '%s';
         return sprintf(
-            '<form action ="%s" method="%s" class="%s" id="%s" enctype="%s" autocomplete="%s" %s> %s %s %s',
+            '<form action ="%s" method="%s" class="%s" id="%s" ' . $enctype . ' ' . $autocomplete . ' %s> %s %s %s',
             $this->action,
             $this->method,
             $this->formClass,
@@ -122,11 +123,11 @@ class Form
         return '</form>';
     }
 
-    public function button() : ButtonField
+    public function button(string $type = '') : ButtonField
     {
         return $this->button
             ->setDefault()
-            ->setType();
+            ->setType($type);
     }
 
     public function input(string $attribbute) : InputField

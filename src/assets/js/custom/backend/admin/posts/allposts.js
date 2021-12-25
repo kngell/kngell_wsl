@@ -7,7 +7,7 @@ import editorLoader from "corejs/editorLoad";
 class AllPosts {
   constructor(element) {
     this.element = element;
-    this.selectTag = [];
+    this.selectTag = ["categorie"];
   }
   _init = () => {
     this._setupVariables();
@@ -30,18 +30,7 @@ class AllPosts {
       csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
       frm_name: "all_posts_page",
     });
-    /**
-     * Open modal
-     * =====================================================================
-     */
-    const __open_modal = async () => {
-      const bs = await import(
-        /* webpackChunkName: "bsmodal" */ "corejs/bootstrap_modal"
-      );
-      new bs.default(["modal-box"])._init().then((modal) => {
-        modal[0].show();
-      });
-    };
+
     /**
      * Init Crud Operations
      * ==========================================================================
@@ -58,7 +47,19 @@ class AllPosts {
       ck_content: phpPlugin.editorContent,
       loader: loader,
     });
-
+    /**
+     * Select 2 Categories initialization
+     */
+    let myselect2 = new select2();
+    myselect2._init({
+      url: "showDetails",
+      element: phpPlugin.modalform.find(".categorie"),
+      tbl_options: "categories",
+      placeholder: "Please select a categorie",
+      csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
+      frm_name: phpPlugin.modalform.attr("id"),
+      multiple: true,
+    });
     /**
      * Display All Items
      * ==========================================================================
@@ -70,11 +71,6 @@ class AllPosts {
       model_method: "getAll",
     });
 
-    /**
-     * Add btn
-     * =======================================================================
-     */
-    cruds._set_addBtn();
     /**
      * Add or Update post
      * ======================================================================
@@ -101,6 +97,18 @@ class AllPosts {
         folder: "posts",
       });
     });
+
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
+      if (!loader.check()) {
+        loader.load().then(() => {
+          cruds.__open_modal();
+        });
+      } else {
+        cruds.__open_modal();
+      }
+    });
+
     /**
      * Edit form
      * =======================================================================
@@ -121,8 +129,10 @@ class AllPosts {
           "userID",
           "postStatus",
           "deleted",
+          "categorie",
         ],
-        tbl_options: [],
+        tbl_options: ["categories"],
+        categorieElement: phpPlugin.modalform.find("#categorie"),
         table: "posts",
         frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
         frm_name: $(this).parents("form").attr("id"),
@@ -130,11 +140,11 @@ class AllPosts {
       };
       if (!loader.check()) {
         loader.load().then(() => {
-          __open_modal();
+          cruds.__open_modal();
           cruds._edit(data);
         });
       } else {
-        __open_modal();
+        cruds.__open_modal();
         cruds._edit(data);
       }
     });
@@ -146,13 +156,25 @@ class AllPosts {
     cruds._clean_form({
       select: phpPlugin.selectTag,
       cke: true,
+      inputHidden: [
+        "postID",
+        "postCommentCount",
+        "userID",
+        "updateAt",
+        "deleted",
+        "operation",
+      ],
     });
     //Clean temporary data
     document
       .querySelector('[data-bs-dismiss="modal"]')
       .addEventListener("click", (e) => {
         e.preventDefault();
-        console.log("dismiss");
+        var imgs = Array.from(
+          new DOMParser()
+            .parseFromString(loader.editor.postContent.data.get(), "text/html")
+            .querySelectorAll("img")
+        ).map((img) => img.getAttribute("src"));
         const data = {
           table: "post_file_url",
           folder: "posts",
@@ -170,10 +192,17 @@ class AllPosts {
       swal: true,
       datatable: true,
       url_check: "checkdelete",
-      delete_frm_class: ".delete-product-frm",
+      delete_frm_class: ".delete-posts-status",
       data_type: "values",
+      frm: true,
+      folder: "posts",
+      method: "deletePosts",
     });
-    cruds._active_inactive_elmt({ table: "categories" });
+    /**
+     * Active Inactive BTN
+     * =====================================================================
+     */
+    cruds._active_inactive_elmt({ table: "posts" });
   };
 }
 // Dropzone.autoDiscover = false;

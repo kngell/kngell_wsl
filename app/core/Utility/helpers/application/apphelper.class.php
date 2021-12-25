@@ -36,8 +36,10 @@ final class AppHelper
                 'UsersRequestsManager'=> fn () => new UsersRequestsManager(),
                 'UserSessionsManager'=> fn () => new UserSessionsManager(),
                 'AuthManager'=> fn () => new AuthManager(),
-                'UploadHelper'=>fn () =>new UploadHelper($app->make(ImageManager::class)),
+                'UploadHelper'=>fn () =>new UploadHelper($app->make(ImageManager::class), $app->make(Files::class)),
                 'PostFileUrlManager'=>fn () =>new PostFileUrlManager(),
+                'PostCategorieManager'=>fn () =>new PostCategorieManager(),
+                'PostsManager'=>fn () =>new PostsManager(),
             ];
     }
 }

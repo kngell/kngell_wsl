@@ -79,6 +79,9 @@ abstract class AbstractModel implements ModelInterface
         if (isset(AuthManager::$currentLoggedInUser->userID) && property_exists($this, 'userID')) {
             if (!isset($this->userID) || empty($this->userID) || $this->userID == null) {
                 $this->userID = AuthManager::$currentLoggedInUser->userID;
+                if ($this->get_modeName() == 'PostsManager' && $this->postAuthor == '') {
+                    $this->postAuthor = AuthManager::$currentLoggedInUser->firstName . ' ' . AuthManager::$currentLoggedInUser->lastName;
+                }
             }
         }
         if (isset($this->msg)) {
@@ -152,6 +155,11 @@ abstract class AbstractModel implements ModelInterface
     public function get_colID() : string
     {
         return isset($this->_colID) ? $this->_colID : '';
+    }
+
+    public function get_status() : string
+    {
+        return isset($this->_status) ? $this->_status : '';
     }
 
     //get indexed colID
@@ -313,14 +321,6 @@ abstract class AbstractModel implements ModelInterface
         return $output;
     }
 
-    //set soft delete to true (=update)
-    public function set_SoftDelete($value)
-    {
-        $this->_softDelete = $value;
-
-        return $this;
-    }
-
     //Check is new object
     public function isNew()
     {
@@ -402,20 +402,19 @@ abstract class AbstractModel implements ModelInterface
     //Update status
     public function updateStatus($item = [])
     {
-        $colID = $this->get_colID();
-        $elts = $this->getDetails($item[$colID]);
+        $elts = $this->getDetails($item[$this->get_colID()]);
         $output = '';
         if ($elts->count() === 1) {
             $elts = current($elts->get_results());
-            if (!property_exists($elts, 'status')) {
+            if (!property_exists($elts, $this->get_status())) {
                 return '';
             } else {
-                $elts->status = $elts->status == 'on' ? null : 'on';
+                $elts->{$elts->get_status()} = $elts->{$elts->get_status()} == 'on' ? null : 'on';
             }
-            $elts->id = $item[$colID];
+            $elts->id = $item[$this->get_colID()];
             $output = '';
             if ($elts->save()) {
-                if ($elts->status == 'on') {
+                if ($elts->{$elts->get_status()} == 'on') {
                     $output = 'green';
                 } else {
                     $output = '#dc3545';

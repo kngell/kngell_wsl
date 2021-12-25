@@ -3,10 +3,11 @@
 declare(strict_types=1);
 class Form_rules
 {
-    // =======================================================================
-    // Users section
-    // =======================================================================
-    // Users groups
+    /**
+     * Groups User Rules
+     * ============================================================.
+     * @return void
+     */
     public static function groups()
     {
         return [
@@ -17,6 +18,22 @@ class Form_rules
                 'unique' => 'groups',
             ],
         ];
+    }
+
+    /**
+     * Posts Rules
+     * ==============================================================.
+     * @return void
+     */
+    public static function posts()
+    {
+        return [
+        'postTitle' => [
+            'display' => 'Post Title',
+            'required' => true,
+            'max' => 255,
+        ],
+    ];
     }
 
     // Units validation

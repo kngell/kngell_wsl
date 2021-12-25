@@ -206,7 +206,7 @@ post:
     method: cleanTempFiles
   # Table controller -------------------------------------------------------------------------------------------
   updateFromTable:
-    controller: table
+    controller: tables
     method: update
   # Guests Controller -------------------------------------------------------------------------------------------
   get_countries:

@@ -7,10 +7,14 @@ final class Cache
     protected int $duration = 25;
     private static $instance;
 
+    public function __construct(private Files $fileSyst)
+    {
+    }
+
     public static function getcache()
     {
         if (!isset(self::$instance)) {
-            static::$instance = new static();
+            static::$instance = new static(Container::getInstance()->make(Files::class));
         }
 
         return static::$instance;
@@ -41,8 +45,9 @@ final class Cache
     public function write(string $file, mixed $data)
     {
         $content = serialize($data);
-
-        return file_put_contents($this->dirname . '/' . $file, $content);
+        if ($this->fileSyst->createDir($this->dirname)) {
+            return file_put_contents($this->dirname . '/' . $file, $content);
+        }
     }
 
     /**

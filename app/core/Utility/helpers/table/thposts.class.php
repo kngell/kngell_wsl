@@ -32,7 +32,7 @@ class THPosts
         foreach ($data as $item) {
             $active = $item->postStatus == 'on' ? "style='color:green'" : '';
             $txtactive = $item->postStatus == 'on' ? 'Active Post' : 'Inactive Post';
-            $media = !empty($item->postImg) ? ImageManager::asset_img(unserialize($item->postImg)[0]) : ImageManager::asset_img('products' . US . 'product-80x80.jpg');
+            $media = !empty($item->postImg) ? ImageManager::asset_img(unserialize($item->postImg)[0]) : ImageManager::asset_img('product-80x80.jpg');
             $output .= ' <tr>
                 <th scope="row" class="text-center">' . $item->{$this->pm->get_colID()} . '</th>
                 <td>
@@ -90,13 +90,14 @@ class THPosts
                 $class .= 'text-danger deleteBtn';
                 $text .= '<i class="fal fa-trash-alt fa-lg"></i>';
                 $title = 'Delete Post';
+                $type = 'submit';
                 break;
 
             default:
                 // code...
                 break;
         }
-        return $this->form->button()->noWrapper()->title($title)->class($class)->text($text)->attr($attr);
+        return $this->form->button(isset($type) ? $type : '')->noWrapper()->title($title)->class($class)->text($text)->attr($attr);
     }
 
     private function form_params(Object $obj) : array

@@ -98,6 +98,11 @@ class Rooter implements RooterInterface
         return $this->route;
     }
 
+    /**
+     * Resolve Request
+     * ===============================================================================.
+     * @return void
+     */
     public function resolve()
     {
         $path = strtolower($this->parseUrl($this->request->getPath()));

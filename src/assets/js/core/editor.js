@@ -18,6 +18,7 @@ import ParagraphButtonUI from "@ckeditor/ckeditor5-paragraph/src/paragraphbutton
 import Bold from "@ckeditor/ckeditor5-basic-styles/src/bold";
 import Italic from "@ckeditor/ckeditor5-basic-styles/src/italic";
 import Underline from "@ckeditor/ckeditor5-basic-styles/src/underline";
+import BlockQuote from "@ckeditor/ckeditor5-block-quote/src/blockquote";
 import ListStyle from "@ckeditor/ckeditor5-list/src/liststyle";
 import Indent from "@ckeditor/ckeditor5-indent/src/indent";
 import IndentBlock from "@ckeditor/ckeditor5-indent/src/indentblock";
@@ -67,6 +68,7 @@ export default class myEditor {
           Bold,
           Italic,
           Underline,
+          BlockQuote,
           ListStyle,
           Indent,
           IndentBlock,
@@ -165,9 +167,10 @@ export default class myEditor {
       })
         .then((editor) => {
           window.elementid = editor;
-          // editor.model.document.on("change:data", (evt, data) => {
-          //   console.log(evt, data);
-          // });
+          editor.model.document.on("change:data", (e, data) => {
+            let root = editor.model.document.getRoot();
+            let children = root.getChildren();
+          });
           //Resolve
           resolve(editor);
         })

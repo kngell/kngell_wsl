@@ -154,6 +154,7 @@ class AdminController extends Controller
     {
         $this->view_instance->set_pageTitle('Posts Management');
         $this->view_instance->post_frm = $this->container->make(Form::class);
+        $this->view_instance->dragAndDrop = file_get_contents(FILES . 'template' . DS . 'base' . DS . 'dragandDropTemplate.php');
         $this->view_instance->render('admin' . DS . 'posts' . DS . 'allposts', ['params'=>$this->response->posts_frm_params()]);
     }
 

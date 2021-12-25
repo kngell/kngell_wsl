@@ -12,6 +12,7 @@ class Model extends AbstractModel
     protected $_modelName;
     protected $_softDelete = false;
     protected $_deleted_item = false;
+    protected $_current_ctrl_method = 'update';
     protected $validationErr = [];
     protected $_lasID;
 
@@ -27,6 +28,31 @@ class Model extends AbstractModel
         $this->set_money();
         $this->throwException($tableSchema, $tableSchemaID);
         $this->createRepository($tableSchema, $tableSchemaID);
+    }
+
+    /**
+     * Soft Delete
+     * =======================================================================.
+     * @param [type] $value
+     * @return self
+     */
+    public function softDelete($value) : self
+    {
+        $this->_softDelete = $value;
+
+        return $this;
+    }
+
+    /**
+     * Current Controller Method
+     * =======================================================================.
+     * @param string $value
+     * @return self
+     */
+    public function current_ctrl_method(string $value) : self
+    {
+        $this->_current_ctrl_method = $value;
+        return $this;
     }
 
     /**

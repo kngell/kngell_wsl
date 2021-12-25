@@ -37,29 +37,81 @@ class PostFileUrlManager extends Model
         return $this->getAllItem($sql);
     }
 
-    /**
-     * Clean Unsued Urls
-     * ========================================================================.
-     * @param string $table
-     * @return bool
-     */
-    public function cleanAllUrls(string $id = '', string $folder = '') : bool
+    public function getMediaModel(string $url, Model $model) : ?Model
     {
-        try {
-            $urls = $id != '' && $folder != '' ? $this->getDbUrls($id, $folder) : $this->getAllItem(['where'=>[$this->_colIndex=>'IS NULL'], 'return_mode'=>'class']);
-            $urlToRemove = [];
-            if ($urls->count() > 0) {
-                foreach ($urls->get_results() as $key => $m) {
-                    if ($m->delete()) {
-                        $urlToRemove[] = basename(unserialize($m->fileUrl)[0]);
+        if ($model->count() > 0) {
+            $m = current(array_filter($model->get_results(), function ($m) use ($url) {
+                if (basename(unserialize($m->fileUrl)[0]) == $url) {
+                    return $m;
+                }
+            }));
+            return !is_object($m) ? null : $m;
+        }
+    }
+
+    public function model_diff(array $clientAry, array $dbAry) : array
+    {
+        if (isset($clientAry) && isset($dbAry)) {
+            foreach ($clientAry as $cm) {
+                if (null != $cm) {
+                    foreach ($dbAry as $key=>$bm) {
+                        if ($cm == $bm) {
+                            unset($dbAry[$key]);
+                        }
                     }
                 }
-                return $this->cleanFilesSystemUrls($urlToRemove, $folder);
+            }
+            return array_values($dbAry);
+        }
+    }
+
+    public function urlsToRemove(array $imgAry, Model $m) : array
+    {
+        if ($m->count() > 0 && isset($imgAry)) {
+            $dbUslrsModel = [];
+            foreach ($imgAry as $url) {
+                $dbUslrsModel[] = $this->getMediaModel($url, $m);
+            }
+            return $this->model_diff($dbUslrsModel, $m->get_results());
+        }
+        return [];
+    }
+
+    public function cleanDbFilesUrls(array $clientAry = [], ?Model $m = null, string $folder = '') : bool
+    {
+        try {
+            $urlToRemove = $this->urlsToRemove(!empty($clientAry) ? $clientAry : [], $m == null ? $this->getAllItem(['where'=>[$this->_colIndex=>'IS NULL'], 'return_mode'=>'class']) : $m);
+            if (isset($urlToRemove) && is_array($urlToRemove) && !empty($urlToRemove)) {
+                $filesToRemove = [];
+                foreach ($urlToRemove as $m) {
+                    if ($m->delete()) {
+                        $filesToRemove[] = ['fileName'=>basename(unserialize($m->fileUrl)[0]), 'folder'=> $folder == '' ? dirname(unserialize($m->fileUrl)[0]) : $folder];
+                    }
+                }
+                return $this->cleanFilesSystemUrls($filesToRemove);
             }
             return true;
         } catch (\Throwable $th) {
             throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
         }
+
+        return false;
+    }
+
+    public function fileAryFromModel(Model $media) : array
+    {
+        return array_map(function ($m) {
+            return basename(unserialize($m->fileUrl)[0]);
+        }, $media->get_results());
+    }
+
+    public function mediaAry(array $data, Request $request) : array
+    {
+        return array_map(function ($url) {
+            return basename(trim($url));
+        }, array_filter(json_decode($request->htmlDecode($data['imageUrlsAry']), true), function ($url) {
+            return $url != null;
+        }));
     }
 
     /**
@@ -74,8 +126,23 @@ class PostFileUrlManager extends Model
         try {
             if (!empty($urlsAry)) {
                 foreach ($urlsAry as $file) {
-                    file_exists(IMAGE_ROOT . $folder . DS . $file) ? unlink(IMAGE_ROOT . $folder . DS . $file) : '';
-                    file_exists(IMAGE_ROOT_SRC . $folder . DS . $file) ? unlink(IMAGE_ROOT_SRC . $folder . DS . $file) : '';
+                    $f = '';
+                    $fileToRemove = '';
+                    if (is_array($file)) {
+                        $f = $folder == '' ? $file['folder'] : $folder;
+                        $fileToRemove = $f . DS . $file['fileName'];
+                    } else {
+                        if ($folder != '') {
+                            $fileToRemove = $folder . DS . $file;
+                        }
+                    }
+                    if ($fileToRemove != '') {
+                        $urls = $this->getAllItem(['where'=>['fileUrl'=>serialize([$fileToRemove])], 'return_mode'=>'class']);
+                        if ($urls->count() == 0) {
+                            file_exists(IMAGE_ROOT . $fileToRemove) ? unlink(IMAGE_ROOT . $fileToRemove) : '';
+                            file_exists(IMAGE_ROOT_SRC . $fileToRemove) ? unlink(IMAGE_ROOT_SRC . $fileToRemove) : '';
+                        }
+                    }
                 }
             }
             return true;

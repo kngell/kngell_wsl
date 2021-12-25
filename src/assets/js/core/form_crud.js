@@ -83,6 +83,7 @@ export function Delete(data, displayItem) {
         url: BASE_URL + data.url,
         method: "post",
         data: data.serverData,
+        dataType: "json",
         success: function (response) {
           displayItem(response, data.params ? data.params : "");
         },
@@ -118,6 +119,7 @@ function checkBeforeDelete(data) {
       $.ajax({
         url: BASE_URL + data.url_check,
         method: "post",
+        dataType: "json",
         data: data.serverData,
       })
         .done((response) => {

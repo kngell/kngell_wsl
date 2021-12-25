@@ -4,27 +4,29 @@ declare(strict_types=1);
 
 class UploadHelper
 {
-    public function __construct(private ImageManager $im)
+    public function __construct(private ImageManager $im, private Files $files)
     {
     }
 
-    public static function upload(array $path, array $file)
+    public function upload(array $path, array $file)
     {
         $targetDir = $path[1];
         //filename
         $filename = (pathinfo(basename($file['name']))['filename'] == 'image') ? self::rename_image($file) : basename($file['name']);
         $targetFilePath = $targetDir . DS . $filename;
         //upload file in the server
-        if (!file_exists($path[0] . $targetFilePath)) {
-            if (move_uploaded_file($file['tmp_name'], $path[0] . $targetFilePath)) {
-                if (!file_exists(IMAGE_ROOT_SRC . $targetFilePath) && !in_array($path[1], ['posts'])) {
-                    copy($path[0] . $targetFilePath, IMAGE_ROOT_SRC . $targetFilePath);
+        if ($this->files->createDir($path[0] . $path[1])) {
+            if (!file_exists($path[0] . $targetFilePath)) {
+                if (move_uploaded_file($file['tmp_name'], $path[0] . $targetFilePath)) {
+                    if (!file_exists(IMAGE_ROOT_SRC . $targetFilePath) && !in_array($path[1], ['posts'])) {
+                        copy($path[0] . $targetFilePath, IMAGE_ROOT_SRC . $targetFilePath);
+                    }
+                    return $targetFilePath;
                 }
-                return $targetFilePath;
+                return 'error';
             }
-            return 'error';
+            return  $targetFilePath;
         }
-        return  $targetFilePath;
     }
 
     //rename image
@@ -41,7 +43,7 @@ class UploadHelper
         $status = [];
         if ($files) {
             foreach ($files as $file) {
-                $result = self::validate_and_upload_file($file, $model, $this->im);
+                $result = $this->validate_and_upload_file($file, $model, $this->im);
                 if ($result['status'] == true) {
                     if ($result['url'] != '') {
                         $paths[] = $result['url'];
@@ -88,7 +90,7 @@ class UploadHelper
     }
 
     //Validate file
-    public static function validate_and_upload_file($file, $model, $imgMgr)
+    public function validate_and_upload_file($file, $model, $imgMgr)
     {
         $path_dir = self::get_path($model)[1];
 
@@ -173,7 +175,7 @@ class UploadHelper
                 return $status;
             }
         }
-        $path = self::upload(self::get_path($model), $file, $imgMgr);
+        $path = $this->upload(self::get_path($model), $file, $imgMgr);
         if ($path == 'error') {
             $arr_file = [];
             $path_dir = '';
@@ -267,70 +269,45 @@ class UploadHelper
         return $editor_content_save;
     }
 
-    public function getMadiaAry(array $data, Request $request) : array
-    {
-        return array_filter(json_decode($request->htmlDecode($data['imageUrlsAry'])), function ($url) {
-            if (null != $url) {
-                return trim($url);
-            }
-        });
-    }
-
-    public function getFileAryFromModel(Model $media) : array
-    {
-        return array_map(function ($m) {
-            return basename(unserialize($m->fileUrl)[0]);
-        }, $media->get_results());
-    }
-
-    public function getMediaModel(string $url, Model $model) : ?Model
-    {
-        if ($model->count() > 0) {
-            return current(array_filter($model->get_results(), function ($m) use ($url) {
-                if (basename(unserialize($m->fileUrl)[0]) == basename($url)) {
-                    return $m;
-                }
-            }));
-        }
-    }
-
     public function manage_uploadImage(Model $model, $data, Request $request, container $container)
     {
         $errors = [];
         if (isset($data['folder']) && isset($data['imageUrlsAry'])) {
-            $imgUrlsAry = $this->getMadiaAry($data, $request);
-            $tempUrls = $container->make(PostFileUrlManager::class)->getDbUrls($model->{$model->get_colID()}, $data['folder']);
+            $lastID = $model->get_lastID();
+            $tempUrls = $container->make(PostFileUrlManager::class)->getDbUrls($lastID != null ? strval($lastID) : $model->{$model->get_colID()}, $data['folder']);
+            $imgUrlsAry = $tempUrls->mediaAry($data, $request);
             if ($tempUrls->count() > 0) {
                 switch (true) {
                     case empty($imgUrlsAry):
                         $errors[] = $tempUrls->cleanAllUrls($model->{$model->get_colID()}, $data['folder']);
                         break;
                     default:
-                        $bdUrlsAry = $this->getFileAryFromModel($tempUrls);
+                        $bdUrlsAry = $tempUrls->fileAryFromModel($tempUrls);
                         foreach ($imgUrlsAry as $key => $url) {
-                            if (in_array(basename($url), $bdUrlsAry)) {
-                                if (($m = $this->getMediaModel($url, $tempUrls)) != null) {
+                            if (in_array($url, $bdUrlsAry)) {
+                                if (($m = $tempUrls->getMediaModel($url, $tempUrls)) != null) {
                                     if (!isset($m->imgID) || ($m->imgID == null)) {
                                         $m->id = $m->pfuID;
-                                        $m->imgID = $model->{$model->get_colID()} . $data['folder'];
+                                        $imgID = $model->get_lastID() ?? $model->{$model->get_colID()};
+                                        $m->imgID = isset($imgID) ? $imgID . $data['folder'] : null;
                                         if ($m->save()) {
                                             if (!file_exists(IMAGE_ROOT_SRC . $data['folder'] . DS . basename($url))) {
-                                                $this->im->init(img_name:basename($url), source: IMAGE_ROOT . $data['folder'], destination: IMAGE_ROOT_SRC . $data['folder'])->resizeImage();
+                                                copy(IMAGE_ROOT . $data['folder'] . DS . $url, IMAGE_ROOT_SRC . $data['folder'] . DS . $url);
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                        $errors[] = $tempUrls->cleanUnusedUrls($data['folder']);
+                        $tempUrls->cleanDbFilesUrls($imgUrlsAry, $tempUrls, $data['folder']);
                         break;
                 }
             } else {
-                $errors[] = $tempUrls->saveFilesUrls($imgUrlsAry, $data['folder'], $model->{$model->get_colID()});
+                // $errors[] = $tempUrls->saveFilesUrls($imgUrlsAry, $data['folder'], $model->{$model->get_colID()});
             }
             // return $tempUrls->cleanDiskFiles($data['folder']);
         }
-        return empty($ $errors) ? true : false;
+        return empty($errors) ? true : false;
     }
 
     // //remove unused urls

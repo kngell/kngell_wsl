@@ -53,19 +53,22 @@ class AssetsController extends Controller
         }
         $path = $path1 . $path;
         $fileToGet = '';
+        $fileToGetSrc = '';
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         switch (true) {
             case in_array($ext, ['png', 'ico', 'jpg']):
                 $fileToGet = empty($path) ? IMAGE_ROOT . $file : IMAGE_ROOT . $path . DS . $file;
+                $fileToGetSrc = empty($path) ? IMAGE_ROOT_SRC . $file : IMAGE_ROOT_SRC . $path . DS . $file;
                 $type = mime_content_type($fileToGet);
                 break;
             default:
                 $fileToGet = empty($path) ? ASSET . $file : ASSET . $path . DS . $file;
+                $fileToGetSrc = empty($path) ? ASSET . $file : ASSET . $path . DS . $file;
                 $type = 'application/x-font-ttf';
                 break;
         }
 
-        return $this->read_asset($fileToGet, $type);
+        return $this->read_asset($fileToGet, $fileToGetSrc, $type);
     }
 
     public function acme($data)
@@ -84,8 +87,13 @@ class AssetsController extends Controller
     {
     }
 
-    private function read_asset($fileToGet, $type)
+    private function read_asset($fileToGet, $fileToGetSrc, $type)
     {
+        if (!file_exists($fileToGet)) {
+            if (file_exists($fileToGetSrc)) {
+                copy($fileToGetSrc, $fileToGet);
+            }
+        }
         if (!empty($fileToGet) && file_exists($fileToGet)) {
             header('Content-type: ' . $type);
             header('Content-Length: ' . filesize($fileToGet));

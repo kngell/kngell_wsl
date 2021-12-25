@@ -42,6 +42,7 @@
     "UsersnotificationController": ["*"],
     "FormsController": ["*"],
     "AssocController": ["*"],
+    "TablesController": ["*"],
     "CommentsController": ["*"],
     "AssetsController": ["*"],
     "UsersController": ["profile", "payment"],

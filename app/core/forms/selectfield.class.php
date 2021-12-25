@@ -13,8 +13,8 @@ class SelectField extends BaseField
     {
         return sprintf(
             '<option value="%s"> %s </option>',
-            $this->model->{$this->attribute},
-            current($this->model->get_countrie($this->model->{$this->attribute})) ?? ''
+            isset($this->model) ? $this->model->{$this->attribute} : '',
+            isset($this->model) ? current($this->model->get_countrie($this->model->{$this->attribute})) ?? '' : ''
         );
     }
 

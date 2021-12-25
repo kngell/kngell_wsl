@@ -71,16 +71,16 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $model = $this->container->make($table . 'Manager'::class)->assign($data)->set_SoftDelete(true)->setselect2Data($data);
-                method_exists('Form_rules', $table) ? $model->validator($data, Form_rules::$table()) : '';
+                $model = $this->container->make($table . 'Manager'::class)->assign($data)->softDelete(true)->setselect2Data($data)->current_ctrl_method('add');
+                method_exists('Form_rules', strtolower($table)) ? $model->validator($data, Form_rules::$table()) : '';
                 if ($model->validationPasses()) {
-                    $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : null;
+                    $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : '';
                     $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model);
                     if ($file['success']) {
                         $model = $file['msg'];
                         if ($resp = $model->manageCheckboxes($data)->save($data)) {
                             $LastID = isset($resp) ? $resp->get_lastID() : $resp->get_lastID();
-                            $this->uploadHelper->manage_uploadImage($LastID, $data, $this->request, $this->container);
+                            $this->uploadHelper->manage_uploadImage($resp, $data, $this->request, $this->container);
                             (!empty($categories)) ? $model->postID = $LastID->get_lastID() : '';
                             (!empty($categories)) ? $model->saveCategories($categories, 'post_categorie') : '';
                             $this->container->make(NotificationManager::class)->notify(AuthManager::currentUser()->userID, $data['notification'] ?? 'Admin', 'A' . $table . ' has been added');
@@ -106,14 +106,9 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $model = $this->container->make($table . 'Manager'::class)->assign($data);
+                $model = $this->container->make($table . 'Manager'::class);
                 $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model);
                 if ($file['success']) {
-                    $tempFile = $model->getDetails($model->fileUrl, 'fileUrl');
-                    if ($tempFile->count() > 0) {
-                        $tempFile = $tempFile->get_results()[0];
-                        $this->jsonResponse(['result' => 'success', 'msg' => ASSET_SERVICE_PROVIDER . $tempFile->fileUrl[0]]);
-                    }
                     if ($resp = $model->storeFile()) {
                         $this->jsonResponse(['result' => 'success', 'msg' => isset($model->fileUrl) ? ImageManager::asset_img(unserialize($model->fileUrl)[0]) : []]);
                     }
@@ -142,7 +137,7 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $this->container->make($table . 'Manager'::class)->cleanAllUrls();
+                $this->container->make($table . 'Manager'::class)->cleanDbFilesUrls();
                 $this->jsonResponse(['result' => 'success', 'msg' =>'ok']);
             } else {
                 $this->jsonResponse(['result' => 'error', 'msg' => FH::showMessage('warning text-center', 'Bad CSRF Token!')]);
@@ -188,12 +183,11 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $model = $this->container->make($table . 'Manager'::class)->set_SoftDelete(true);
-                $categories = ($table === 'posts' && array_key_exists('categorie', $data)) ? array_values($data['categorie']) : '';
+                $model = $this->container->make($table . 'Manager'::class);
                 $colID = $model->get_colID();
                 $model->getDetails($data[$colID]);
                 if ($model->count() === 1) {
-                    $model = current($model->get_results());
+                    $model = current($model->get_results())->softDelete(true)->current_ctrl_method('update');
                     AuthManager::check_UserSession();
                     $model->populate($data)->setselect2Data($data);
                     $model->id = $data[$colID];
@@ -240,7 +234,8 @@ class FormsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class);
-                if ($output = $model->check_forEmptyParent($data[$model->get_colID()])) {
+                $parentID = $model->get_colID();
+                if ($output = $model->check_forEmptyParent(isset($data[$parentID]) ? $data[$parentID] : '')) {
                     $model = null;
                     $this->jsonResponse(['result' => 'success', 'msg' => FH::showMessage('light', $output)]);
                 } else {
@@ -261,9 +256,10 @@ class FormsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class);
-                in_array($table, ['contacts', 'assoc', 'users']) ? $model->set_SoftDelete(true) : '';
-                if ($model->delete($data[$model->get_colID()], $data)) {
-                    $SuccessMsg = $model->get_successMessage('delete', $data);
+                in_array(strtolower($table), ['contacts', 'assoc', 'users']) ? $model->set_SoftDelete(true) : '';
+                $method = isset($data['method']) && $data['method'] != '' ? $data['method'] : 'delete';
+                if ($model->$method($data[$model->get_colID()], $data)) {
+                    $SuccessMsg = $model->get_successMessage('delete', $data['custom_message'] ?? '');
                     $this->container->make(NotificationManager::class)->notify(AuthManager::currentUser()->userID, $data['notification'] ?? 'Admin', $SuccessMsg);
                     $model = null;
                     $this->jsonResponse(['result' => 'success', 'msg' => $SuccessMsg]);
@@ -329,7 +325,7 @@ class FormsController extends Controller
         if (isset($model_options)) {
             if (is_array($model_options)) {
                 foreach ($model_options as $m) {
-                    if (in_array($model->get_tableName(), ['products'])) {
+                    if (in_array($model->get_tableName(), ['products', 'posts'])) {
                         $options[$model->get_fieldName($m->get_tableName())] = $m->get_Options($model->get_selectedOptions($m), $m);
                     } else {
                         $m->colOptions = $m->get_fieldName($model->get_tableName());

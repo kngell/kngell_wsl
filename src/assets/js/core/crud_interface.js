@@ -31,8 +31,8 @@ export default class Cruds {
       csrftoken: this.csrftoken,
       frm_name: this.frm_name,
     };
-    Call_controller({ ...data, ...params }, manageR);
-    function manageR(response) {
+
+    Call_controller({ ...data, ...params }, (response) => {
       if (response.result == "success") {
         wrapper.find("#showAll").html(response.msg);
         if (params.datatable) _loadDatatables();
@@ -40,7 +40,7 @@ export default class Cruds {
       } else {
         wrapper.find("#globalErr").html(response.msg);
       }
-    }
+    });
 
     async function _loadDatatables() {
       const DataTable = await import(
@@ -61,18 +61,7 @@ export default class Cruds {
       fields: [".price"],
     });
   };
-  //=======================================================================
-  //Add or update table
-  //=======================================================================
-  //Set add btn
-  _set_addBtn = () => {
-    let wrapper = this.wrapper;
-    let form = this.form;
-    wrapper.find("#addNew").on("click", function () {
-      form.find("#operation").val("add");
-      form.children(".mb-3").first().find("input").focus();
-    });
-  };
+
   //get selected categories
   _get_selected_categories = (selector) => {
     if (selector) {
@@ -95,6 +84,18 @@ export default class Cruds {
       }
     });
     return select_data;
+  };
+  /**
+   * Open modal
+   * =====================================================================
+   */
+  __open_modal = async () => {
+    const bs = await import(
+      /* webpackChunkName: "bsmodal" */ "corejs/bootstrap_modal"
+    );
+    new bs.default(["modal-box"])._init().then((modal) => {
+      modal[0].show();
+    });
   };
   /**
    * add or update
@@ -132,7 +133,6 @@ export default class Cruds {
     }
     function manageR(response) {
       plugin.form.find("#submitBtn").val("Submit");
-
       switch (response.result) {
         case "error-field":
           input.error(plugin.modal, response.msg);
@@ -151,8 +151,8 @@ export default class Cruds {
             if (params.swal) {
               Swal.fire("Success!", response.msg, "success").then(() => {
                 if (params.datatable == true) {
-                  const { frm_name, frm, ...display_params } = params;
-                  plugin._displayAll(display_params);
+                  const { frm_name, frm, categorie, ...dysplayparams } = params;
+                  plugin._displayAll(dysplayparams);
                 } else {
                   location.reload();
                 }
@@ -208,6 +208,12 @@ export default class Cruds {
     }
     return result;
   };
+  /**
+   * Clean Params
+   * ======================================================
+   * @param {*} params
+   * @returns
+   */
   _clean_params = (params) => {
     let ajax_param = {};
     const exclude = [
@@ -239,8 +245,7 @@ export default class Cruds {
       params: params.hasOwnProperty("std_fields") ? params.std_fields : "",
     };
     const ajax_params = plugin._clean_params(params);
-    Call_controller({ ...data, ...ajax_params }, manageR);
-    function manageR(response, std_fields) {
+    Call_controller({ ...data, ...ajax_params }, (response, std_fields) => {
       if (response.result === "success") {
         $(std_fields).each(function (i, field) {
           switch (true) {
@@ -339,9 +344,8 @@ export default class Cruds {
           plugin.form.find("#alertErr").html(response.msg);
         }
       }
-    }
+    });
   };
-
   //=======================================================================
   //Delete
   //=======================================================================
@@ -357,12 +361,14 @@ export default class Cruds {
         id = selector.attr("id");
         break;
     }
-    if (params["dataType"] && params.dataType != "frm") {
+    if (!params.hasOwnProperty("frm")) {
       result = {
         table: table,
         frm_name: selector.attr("id"),
-        method: params.method != "" ? params.method : "",
         id: id ? id : "",
+        csrftoken: this.csrftoken,
+        method: params.hasOwnProperty("method") ? params.method : "",
+        folder: params.hasOwnProperty("folder") ? params.folder : "",
       };
     } else {
       result =
@@ -371,8 +377,9 @@ export default class Cruds {
         $.param({
           table: table,
           frm_name: selector.attr("id"),
-          method: params.method != "" ? params.method : "",
           id: id ? id : "",
+          method: params.hasOwnProperty("method") ? params.method : "",
+          folder: params.hasOwnProperty("folder") ? params.folder : "",
         });
     }
     return result;
@@ -382,16 +389,14 @@ export default class Cruds {
     let plugin = this;
     plugin.wrapper.on("submit", params.delete_frm_class, function (e) {
       e.preventDefault();
+      const swal = params.hasOwnProperty("swal") && params.swal ? Swal : false;
       var data = {
         url: "delete",
-        url_check: params.url_check != "" ? params.url_check : "",
-        swal: params.hasOwnProperty("swal") && params.swal ? Swal : false,
+        swal: swal,
         serverData: plugin._get_delete_data($(this), params),
-        csrftoken: this.csrftoken,
-        frm_name: this.frm_name,
+        url_check: params.hasOwnProperty("url_check") ? params.url_check : "",
       };
-      Delete(data, manageR);
-      function manageR(response) {
+      Delete(data, (response) => {
         if (response.result === "success") {
           if (params.hasOwnProperty("swal") && params.swal) {
             Swal.fire("Deleted!", response.msg, "success").then(() => {
@@ -409,7 +414,7 @@ export default class Cruds {
             plugin.form.find("#alertErr").html(response.msg);
           }
         }
-      }
+      });
     });
   };
 
@@ -471,6 +476,11 @@ export default class Cruds {
             plugin.loader.editor[content].setData("");
           });
         }
+        if (data.hasOwnProperty("inputHidden")) {
+          $.each(data.inputHidden, (idx, input) => {
+            $("#" + input).val("");
+          });
+        }
         plugin.form[0].reset();
         if (select != "") {
           if (Array.isArray(select)) {
@@ -514,7 +524,6 @@ export default class Cruds {
   _active_inactive_elmt = (params) => {
     let wrapper = this.wrapper;
     wrapper.on("click", ".activateBtn", function (e) {
-      console.log("go");
       e.preventDefault();
       var data = {
         url: "updateFromTable",
@@ -524,7 +533,6 @@ export default class Cruds {
         method: "updateStatus",
         params: $(this),
       };
-      console.log(data);
       Call_controller(data, Response);
       function Response(response, elmt) {
         if (response.result == "success") {

@@ -3,9 +3,8 @@
 declare(strict_types=1);
 class TablesController extends Controller
 {
-    public function __construct(string $controller, string $method)
+    public function __construct()
     {
-        parent::__construct($controller, $method);
     }
 
     //=======================================================================
@@ -18,7 +17,7 @@ class TablesController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $model = $this->container->make($table . 'Manager'::class)->set_SoftDelete(true);
+                $model = $this->container->make($table . 'Manager'::class)->softDelete(true);
                 $method = $data['method'];
                 if ($output = $model->$method($data)) {
                     $this->jsonResponse(['result' => 'success', 'msg' => $output]);

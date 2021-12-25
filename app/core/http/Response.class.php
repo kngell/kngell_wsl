@@ -59,7 +59,6 @@ class Response extends HttpGlobals
                 'deleted'=>['id'=>'deleted'],
                 'operation'=>['id'=>'operation'],
             ],
-            'nestField'=>true,
             'fieldCommonclass'=>[
                 'fieldclass' => 'input-box__input',
                 'labelClass' => 'input-box__label',
