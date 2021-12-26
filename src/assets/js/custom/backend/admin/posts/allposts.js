@@ -61,6 +61,15 @@ class AllPosts {
       multiple: true,
     });
     /**
+     * Upload Media
+     * ======================================================================
+     */
+    let dropzone = new media({
+      dz_element: phpPlugin.modalform.find(".dragAndDrop__wrapper"),
+      submitBtn: "submitBtn1",
+    })._upload();
+
+    /**
      * Display All Items
      * ==========================================================================
      */
@@ -95,6 +104,7 @@ class AllPosts {
             .querySelectorAll("img")
         ).map((img) => img.getAttribute("src")),
         folder: "posts",
+        dropzone: dropzone,
       });
     });
 
@@ -137,6 +147,7 @@ class AllPosts {
         frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
         frm_name: $(this).parents("form").attr("id"),
         tag: $(this),
+        dropzone: dropzone,
       };
       if (!loader.check()) {
         loader.load().then(() => {
@@ -156,6 +167,7 @@ class AllPosts {
     cruds._clean_form({
       select: phpPlugin.selectTag,
       cke: true,
+      dropzone: dropzone,
       inputHidden: [
         "postID",
         "postCommentCount",

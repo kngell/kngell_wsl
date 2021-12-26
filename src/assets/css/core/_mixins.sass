@@ -1,5 +1,6 @@
 @use "sass:math"
 @use "./function" as *
+@use "corecss/variables" as *
 // =============================================================================
 //Font Face
 // =============================================================================
@@ -63,7 +64,7 @@
   &:hover
     background-color: lighten($hover-color, 20%)!important
  
-=button($bg:'',$bg-hover,$radius:0,$text:uppercase,$padding: 13px 30px,$border-color: transparent)
+=button($bg:'',$bg-hover:$color-second,$radius:0,$text:uppercase,$padding: 13px 30px,$border-color: transparent)
   font-size: .8rem
   font-weight: 700
   outline: none 

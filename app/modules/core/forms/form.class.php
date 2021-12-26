@@ -115,7 +115,7 @@ class Form
             $button .= '<div class="action"><button type="' . $submitType . '" name="submitBtn" id="' . $id . '" class="button">' . $text . '</button></div>';
         }
 
-        return '<div class="mb-3">' . $button . '</div>';
+        return '<div class="mb-3 btn-group">' . $button . '</div>';
     }
 
     public function end()

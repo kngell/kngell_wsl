@@ -4,10 +4,12 @@ export default class Upload {
     this.element = dz.dz_element;
   }
 
-  //=======================================================================
-  //Upload files
-  //=======================================================================
-  _upload = (params = {}) => {
+  /**
+   * Upload Files
+   * ================================================================
+   * @returns
+   */
+  _upload = () => {
     let plugin = this;
     const active = () => plugin.element.addClass("drag-over");
     const inactive = () => plugin.element.removeClass("drag-over");
@@ -27,40 +29,41 @@ export default class Upload {
     });
     plugin.element.on("drop", (e) => {
       plugin.element.find(".button").prop("disabled", true).addClass("disable");
-      let files = [...e.originalEvent.dataTransfer.files];
+      let files = e.originalEvent.dataTransfer.files;
       plugin._handleDrop(files);
     });
     return plugin;
   };
-  //=======================================================================
-  //Handle Drop
-  //=======================================================================
+  /**
+   * Handle Drop Event
+   * ======================================================================
+   * @param {*} files
+   */
   _handleDrop = (files) => {
     let plugin = this;
-
     if (files.length != 0) {
-      files = files.filter((file) => {
+      files = [...files].filter((file, j) => {
         let m_file = {};
-        console.log(file);
-        plugin.files.forEach((p_file) => {
-          if (p_file.name == file.name && p_file.size == file.size) {
+        plugin.files.forEach((p_file, i) => {
+          if (p_file.name == file[j].name && p_file.size == file[j].size) {
             m_file = p_file;
           }
         });
-        return file.name != m_file.name && file.size != m_file.size;
-      });
-      debugger;
-      for (let i = 0; i < files.length; i++) {
-        console.log(files[i]);
-        let gallery_item = plugin._createGallery(URL.createObjectURL(files[i]));
-        plugin._createExtraDiv(files[i], gallery_item);
-        plugin.element.find(".gallery").append(gallery_item);
-        plugin.files.push(files[i]);
+        return file[j].name != m_file.name && file[j].size != m_file.size;
+      })[0];
+      if (files instanceof FileList) {
+        let gallery_item;
+        for (let i = 0; i < files.length; i++) {
+          gallery_item = plugin._createGallery(URL.createObjectURL(files[i]));
+          plugin._createExtraDiv(files[i], gallery_item);
+          plugin.element.find(".gallery").append(gallery_item);
+          plugin.files.push(files[i]);
+        }
+        plugin.element.on("click", ".gallery_item", function (e) {
+          e.stopPropagation();
+        });
+        plugin._removeFiles();
       }
-      plugin.element.on("click", ".gallery_item", function (e) {
-        e.stopPropagation();
-      });
-      plugin._removeFiles();
     }
     if (plugin.files.length == 0) {
       plugin.element.find(".message").show();
@@ -68,9 +71,10 @@ export default class Upload {
       plugin.element.find(".message").hide();
     }
   };
-  //=======================================================================
-  //Handle Drop
-  //=======================================================================
+  /**
+   * Manage Input
+   * ==================================================================
+   */
   _manageInputFile = () => {
     let plugin = this;
     let inputEl = $("<input/>", {
@@ -79,7 +83,7 @@ export default class Upload {
     }).css("display", "none");
     inputEl.click();
     inputEl.on("change", function (e) {
-      let files = [...e.originalEvent.path[0].files];
+      let files = e.originalEvent.path[0].files;
       plugin._handleDrop(files);
     });
   };
@@ -87,7 +91,11 @@ export default class Upload {
   //Create image gallery
   //=======================================================================
   _createGallery = (value) => {
-    var gallery_item = $("<div></div>").addClass("gallery_item");
+    var gallery_item = $("<div /> </div>")
+      .addClass("gallery_item")
+      .width(150)
+      .height(150);
+
     var img_remove = $("<div></div>").addClass("remove_item").text("Remove");
     var img_item = $("<div></div>").addClass("img_item");
     var img = $("<img />", {

@@ -1,0 +1,31 @@
+@use "corecss/variables" as *
+@use "corecss/mixins" as *
+@use "../../base/_draganddrop"
+
+#modal-box
+    font-family: $font-share_tech
+    .modal-content
+        border-radius: .25rem
+        .modal-header
+            background-color: $white-light
+            .modal-title
+                font-size: 1.125rem
+                color: $color-primary
+                text-align: center
+                font-weight: 600
+        .modal-body
+            .post_frm_wrapper
+                background-color: $white-color
+                form
+                    .input-box
+                        label
+                            font-size: 1rem
+                            color: $gray-dark-in
+                    .btn-group
+                        display: flex
+                        justify-content: space-between
+                        padding: 0 1.5rem
+                        #submitBtn1
+                            +button($color-primary,$color-second,.3125rem,uppercase,.625rem 1.875rem)
+                        #submitBtn0
+                            +button($gray-common,$gray-dark,.3125rem,uppercase,.625rem 1.875rem)
