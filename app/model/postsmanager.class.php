@@ -6,6 +6,8 @@ class PostsManager extends Model
     protected string $_colID = 'postID';
     protected string $_table = 'posts';
     protected string $_status = 'postStatus';
+    protected string $_media_img = 'postImg';
+    protected string $_img_folder = 'blog-post';
 
     public function __construct()
     {
@@ -33,16 +35,36 @@ class PostsManager extends Model
         return $wh->count() > 0 ? $wh->get_results() : [];
     }
 
+    public function filesToRemove()
+    {
+        if (isset($this->_media_img) && is_array($this->{$this->_media_img})) {
+            $fTr = $this->{$this->_media_img};
+            $f = [];
+            foreach ($fTr as $url) {
+                $f[] = str_replace(IMG, '', $url);
+            }
+            return $f;
+        }
+    }
+
     public function deletePosts(string $id, array $data) : bool
     {
-        $imgID = isset($data['folder']) ? $id . $data['folder'] : '';
-        if ($imgID != '') {
+        try {
             if ($this->delete($id, $data)) {
-                $urlModel = $this->container->make(PostFileUrlManager::class);
-                return $urlModel->cleanDbFilesUrls([], $urlModel->getAllItem(['where'=>['imgID'=>$imgID], 'return_mode'=>'class']), $data['folder']);
+                return  $this->container->make(Files::class)->cleanDbFilesUrls([], $this->container->make(PostFileUrlManager::class)->getAllItem(['where'=>['itemID'=>$id], 'return_mode'=>'class']));
             }
+        } catch (\Throwable $th) {
+            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
         }
-        return false;
+    }
+
+    public function clientAry(array $cR): array
+    {
+        $r = [];
+        foreach ($cR as $url) {
+            $r[] = basename($url);
+        }
+        return $r;
     }
 
     /**
@@ -53,11 +75,23 @@ class PostsManager extends Model
      */
     public function afterSave(array $params = []) : ?Model
     {
-        $id = !isset($this->postID) || $this->postID == '' ? $params['saveID']->get_lastID() : $this->postID;
-        if ($this->_current_ctrl_method == 'update') {
-            return $this->container->make(PostCategorieManager::class)->update_categories(strval($id), $params);
+        try {
+            $id = !isset($this->postID) || $this->postID == '' ? $params['saveID']->get_lastID() : $this->postID;
+            $this->container->make(PostCategorieManager::class)->save_categories(strval($id), $params);
+            $urls = $this->container->make(PostFileUrlManager::class)->getAllbyIndex((string) $id . $this->_img_folder, ['return_mode' => 'class']);
+            if ($urls->count() > 0) {
+                $clientAry = $this->{$this->get_media()} != false ? $this->clientAry(unserialize($this->{$this->get_media()})) : [];
+                $this->container->make(Files::class)->cleanDbFilesUrls($clientAry, $urls);
+                $urls->add_urls_dependencies($this, array_diff(unserialize($this->{$this->get_media()}), array_map(function ($url) {
+                    return unserialize($url)[0];
+                }, array_column($urls->get_results(), 'fileUrl'))));
+            } else {
+                $urls->add_urls_dependencies($this, unserialize($this->{$this->get_media()}));
+            }
+            return isset($params['saveID']) ? $params['saveID'] : null;
+        } catch (\Throwable $th) {
+            throw new FileSystemManagementException('Impossible de sauvegarder les dependances! ' . $th->getMessage(), $th->getCode());
         }
-        return $this->container->make(PostCategorieManager::class)->add_categories(strval($id), $params);
     }
 
     /**

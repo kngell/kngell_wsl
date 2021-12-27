@@ -43,6 +43,119 @@ class Files implements FileInterface
         return false;
     }
 
+    public function files_model_diff(array $clientAry, array $dbAry) : array
+    {
+        if (isset($clientAry) && isset($dbAry)) {
+            foreach ($clientAry as $cm) {
+                if (null != $cm) {
+                    foreach ($dbAry as $key=>$bm) {
+                        if ($cm == $bm) {
+                            unset($dbAry[$key]);
+                        }
+                    }
+                }
+            }
+            return array_values($dbAry);
+        }
+    }
+
+    public function fileAryFromModel(Model $media) : array
+    {
+        return array_map(function ($m) {
+            return basename(unserialize($m->{$m->get_media()})[0]);
+        }, $media->get_results());
+    }
+
+    public function getFileModel(string $url, Model $model) : ?Model
+    {
+        if ($model->count() > 0) {
+            $m = current(array_filter($model->get_results(), function ($m) use ($url) {
+                if (basename(unserialize($m->fileUrl)[0]) == $url) {
+                    return $m;
+                }
+            }));
+            return !is_object($m) ? null : $m;
+        }
+    }
+
+    public function urlsToRemove(array $imgAry, Model $m) : array
+    {
+        if ($m->count() > 0 && isset($imgAry)) {
+            $dbUslrsModel = [];
+            foreach ($imgAry as $url) {
+                $dbUslrsModel[] = $this->getFileModel($url, $m);
+            }
+            return $this->files_model_diff($dbUslrsModel, $m->get_results());
+        }
+        return [];
+    }
+
+    public function cleanDbFilesUrls(array $clientAry = [], ?Model $m = null) : bool
+    {
+        try {
+            $urlToRemove = $this->urlsToRemove(!empty($clientAry) ? $clientAry : [], $m);
+            if (isset($urlToRemove) && is_array($urlToRemove) && !empty($urlToRemove)) {
+                $filesToRemove = [];
+                foreach ($urlToRemove as $m) {
+                    if ($m->delete()) {
+                        $filesToRemove[] = $m;
+                    }
+                }
+                return $this->cleanFilesSystemUrls($filesToRemove);
+            }
+            return true;
+        } catch (\Throwable $th) {
+            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
+        }
+
+        return false;
+    }
+
+    /**
+     * cleanFilesSystemUrls
+     * ===========================================================================.
+     * @param array $urlsAry
+     * @param string $table
+     * @return mixed
+     */
+    public function cleanFilesSystemUrls(array $urlsAry = []) : mixed
+    {
+        try {
+            if (!empty($urlsAry)) {
+                foreach ($urlsAry as $m) {
+                    $fileToRemove = unserialize($m->{$m->get_media()});
+                    if ($fileToRemove != '') {
+                        $this->remove_files($fileToRemove, $m);
+                    }
+                }
+            }
+            return true;
+        } catch (\Throwable $th) {
+            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
+        }
+    }
+
+    public function remove_files(mixed $fileToRemove, ?Model $m = null) : bool
+    {
+        try {
+            if (is_string($fileToRemove) && !empty($fileToRemove)) {
+                $fileToRemove = [$fileToRemove];
+            }
+            if (is_array($fileToRemove) && !empty($fileToRemove)) {
+                foreach ($fileToRemove as $file) {
+                    $urls = $m->getAllItem(['where'=>[$m->get_media()=>serialize($fileToRemove)], 'return_mode'=>'class']);
+                    if ($urls->count() <= 0) {
+                        file_exists(IMAGE_ROOT . $file) ? unlink(IMAGE_ROOT . $file) : '';
+                        file_exists(IMAGE_ROOT_SRC . $file) ? unlink(IMAGE_ROOT_SRC . $file) : '';
+                    }
+                }
+            }
+            return true;
+        } catch (\Throwable $th) {
+            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
+        }
+    }
+
     private function search_file(string $folder, ?string $file_to_search = null, array &$results = []) : array
     {
         $files = ($folder !== false and is_dir($folder)) ? scandir($folder) : false;

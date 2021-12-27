@@ -3,9 +3,11 @@
 declare(strict_types=1);
 class PostFileUrlManager extends Model
 {
-    protected $_table = 'post_file_url';
-    protected $_colID = 'pfuID';
-    protected $_colIndex = 'imgID';
+    protected string $_table = 'post_file_url';
+    protected string $_colID = 'pfuID';
+    protected string $_colIndex = 'imgID';
+    protected string $_media_img = 'fileUrl';
+    protected string $_img_folder = 'posts';
 
     public function __construct()
     {
@@ -15,11 +17,38 @@ class PostFileUrlManager extends Model
 
     public function storeFile()
     {
-        if (Cookies::exists(VISITOR_COOKIE_NAME)) {
-            $this->user_cookie = Cookies::get(VISITOR_COOKIE_NAME);
-            return $this->save();
+        $this->folder = $this->_img_folder;
+        return $this->save();
+    }
+
+    public function update_urls_dependencies(?Model $m, array $urlAry)
+    {
+        if ($this->count() > 0) {
+            foreach ($this->get_results() as $dep) {
+                if (!$dep->delete()) {
+                    break;
+                    return null;
+                }
+            }
         }
-        return false;
+        return $this->add_urls_dependencies($m, $urlAry);
+    }
+
+    public function add_urls_dependencies(?Model $m, array $urlAry) : bool
+    {
+        foreach ($urlAry as $url) {
+            if ($url != '') {
+                $this->itemID = $m->{$m->get_colID()};
+                $this->imgID = $this->itemID . $m->get_media_folder();
+                $this->{$this->_media_img} = serialize([$url]);
+                $this->folder = $m->get_media_folder();
+                if (!$this->save()) {
+                    break;
+                    return true;
+                }
+            }
+        }
+        return true;
     }
 
     public function cleanBdFiles()
@@ -35,120 +64,6 @@ class PostFileUrlManager extends Model
     {
         $sql = ['sql' => "SELECT * FROM $this->_table WHERE $this->_colIndex" . ' = ' . "'" . $lastID . $table . "'" . ' OR ' . "$this->_colIndex IS NULL", 'return_mode'=>'class'];
         return $this->getAllItem($sql);
-    }
-
-    public function getMediaModel(string $url, Model $model) : ?Model
-    {
-        if ($model->count() > 0) {
-            $m = current(array_filter($model->get_results(), function ($m) use ($url) {
-                if (basename(unserialize($m->fileUrl)[0]) == $url) {
-                    return $m;
-                }
-            }));
-            return !is_object($m) ? null : $m;
-        }
-    }
-
-    public function model_diff(array $clientAry, array $dbAry) : array
-    {
-        if (isset($clientAry) && isset($dbAry)) {
-            foreach ($clientAry as $cm) {
-                if (null != $cm) {
-                    foreach ($dbAry as $key=>$bm) {
-                        if ($cm == $bm) {
-                            unset($dbAry[$key]);
-                        }
-                    }
-                }
-            }
-            return array_values($dbAry);
-        }
-    }
-
-    public function urlsToRemove(array $imgAry, Model $m) : array
-    {
-        if ($m->count() > 0 && isset($imgAry)) {
-            $dbUslrsModel = [];
-            foreach ($imgAry as $url) {
-                $dbUslrsModel[] = $this->getMediaModel($url, $m);
-            }
-            return $this->model_diff($dbUslrsModel, $m->get_results());
-        }
-        return [];
-    }
-
-    public function cleanDbFilesUrls(array $clientAry = [], ?Model $m = null, string $folder = '') : bool
-    {
-        try {
-            $urlToRemove = $this->urlsToRemove(!empty($clientAry) ? $clientAry : [], $m == null ? $this->getAllItem(['where'=>[$this->_colIndex=>'IS NULL'], 'return_mode'=>'class']) : $m);
-            if (isset($urlToRemove) && is_array($urlToRemove) && !empty($urlToRemove)) {
-                $filesToRemove = [];
-                foreach ($urlToRemove as $m) {
-                    if ($m->delete()) {
-                        $filesToRemove[] = ['fileName'=>basename(unserialize($m->fileUrl)[0]), 'folder'=> $folder == '' ? dirname(unserialize($m->fileUrl)[0]) : $folder];
-                    }
-                }
-                return $this->cleanFilesSystemUrls($filesToRemove);
-            }
-            return true;
-        } catch (\Throwable $th) {
-            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
-        }
-
-        return false;
-    }
-
-    public function fileAryFromModel(Model $media) : array
-    {
-        return array_map(function ($m) {
-            return basename(unserialize($m->fileUrl)[0]);
-        }, $media->get_results());
-    }
-
-    public function mediaAry(array $data, Request $request) : array
-    {
-        return array_map(function ($url) {
-            return basename(trim($url));
-        }, array_filter(json_decode($request->htmlDecode($data['imageUrlsAry']), true), function ($url) {
-            return $url != null;
-        }));
-    }
-
-    /**
-     * cleanFilesSystemUrls
-     * ===========================================================================.
-     * @param array $urlsAry
-     * @param string $table
-     * @return mixed
-     */
-    public function cleanFilesSystemUrls(array $urlsAry = [], string $folder = '') : mixed
-    {
-        try {
-            if (!empty($urlsAry)) {
-                foreach ($urlsAry as $file) {
-                    $f = '';
-                    $fileToRemove = '';
-                    if (is_array($file)) {
-                        $f = $folder == '' ? $file['folder'] : $folder;
-                        $fileToRemove = $f . DS . $file['fileName'];
-                    } else {
-                        if ($folder != '') {
-                            $fileToRemove = $folder . DS . $file;
-                        }
-                    }
-                    if ($fileToRemove != '') {
-                        $urls = $this->getAllItem(['where'=>['fileUrl'=>serialize([$fileToRemove])], 'return_mode'=>'class']);
-                        if ($urls->count() == 0) {
-                            file_exists(IMAGE_ROOT . $fileToRemove) ? unlink(IMAGE_ROOT . $fileToRemove) : '';
-                            file_exists(IMAGE_ROOT_SRC . $fileToRemove) ? unlink(IMAGE_ROOT_SRC . $fileToRemove) : '';
-                        }
-                    }
-                }
-            }
-            return true;
-        } catch (\Throwable $th) {
-            throw new FileSystemManagementException('Impossible de supprimer les fichiers! ' . $th->getMessage(), $th->getCode());
-        }
     }
 
     public function cleanDiskFiles(string $folder) : bool

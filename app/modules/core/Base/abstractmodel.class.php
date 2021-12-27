@@ -147,6 +147,25 @@ abstract class AbstractModel implements ModelInterface
         return $m;
     }
 
+    public function media_prop_adjust() : self
+    {
+        if (isset($this->_media_img) && $this->_media_img != 'p_media') {
+            $this->p_media = $this->{$this->_media_img};
+            unset($this->{$this->_media_img});
+        }
+        return $this;
+    }
+
+    public function get_media_folder() : string
+    {
+        return isset($this->_img_folder) ? $this->_img_folder : '';
+    }
+
+    public function get_media() : string
+    {
+        return isset($this->_media_img) ? $this->_media_img : '';
+    }
+
     /**
      * Get Col ID or TablschemaID.
      *

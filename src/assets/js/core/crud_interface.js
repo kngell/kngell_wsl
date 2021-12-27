@@ -151,7 +151,13 @@ export default class Cruds {
             if (params.swal) {
               Swal.fire("Success!", response.msg, "success").then(() => {
                 if (params.datatable == true) {
-                  const { frm_name, frm, categorie, ...dysplayparams } = params;
+                  const {
+                    frm_name,
+                    frm,
+                    categorie,
+                    dropzone,
+                    ...dysplayparams
+                  } = params;
                   plugin._displayAll(dysplayparams);
                 } else {
                   location.reload();
@@ -278,29 +284,32 @@ export default class Cruds {
               }
               break;
             case this == "p_media" &&
-              ["products", "sliders"].includes(plugin.table):
-              var dz = params.dropzone;
-              $(dz.element).find(".message").hide();
-              dz.files = [];
-              $.each(response.msg.items[field], function (key, value) {
-                let gallery_item = dz._createGallery(value);
-                dz._createFile(value)
-                  .then((file) => {
-                    dz.files.push(file);
-                    dz._createExtraDiv(file, gallery_item);
-                  })
-                  .catch(function (error) {
-                    console.log(
-                      "Il y a eu un problème avec l'opération fetch: " +
-                        error.message
-                    );
+              ["products", "sliders", "posts"].includes(plugin.table):
+              if (response.msg.items[field]) {
+                var dz = params.dropzone;
+                $(dz.element).find(".message").hide();
+                dz.files = [];
+                $.each(response.msg.items[field], function (key, value) {
+                  let gallery_item = dz._createGallery(value);
+                  dz._createFile(value)
+                    .then((file) => {
+                      dz.files.push(file);
+                      dz._createExtraDiv(file, gallery_item);
+                    })
+                    .catch(function (error) {
+                      console.log(
+                        "Il y a eu un problème avec l'opération fetch: " +
+                          error.message
+                      );
+                    });
+                  dz.element.find(".gallery").append(gallery_item);
+                  dz.element.on("click", ".gallery_item", (e) => {
+                    e.stopPropagation();
                   });
-                dz.element.find(".gallery").append(gallery_item);
-                dz.element.on("click", ".gallery_item", (e) => {
-                  e.stopPropagation();
                 });
-              });
-              dz._removeFiles();
+                dz._removeFiles();
+              }
+
               break;
             case this == "profileImage" && plugin.table == "users":
               plugin.modal

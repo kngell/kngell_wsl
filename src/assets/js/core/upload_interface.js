@@ -1,3 +1,5 @@
+import { isEmpty } from "lodash";
+
 export default class Upload {
   constructor(dz) {
     this.files = [];
@@ -42,16 +44,8 @@ export default class Upload {
   _handleDrop = (files) => {
     let plugin = this;
     if (files.length != 0) {
-      files = [...files].filter((file, j) => {
-        let m_file = {};
-        plugin.files.forEach((p_file, i) => {
-          if (p_file.name == file[j].name && p_file.size == file[j].size) {
-            m_file = p_file;
-          }
-        });
-        return file[j].name != m_file.name && file[j].size != m_file.size;
-      })[0];
-      if (files instanceof FileList) {
+      files = plugin._filter_files(files);
+      if (files instanceof Array) {
         let gallery_item;
         for (let i = 0; i < files.length; i++) {
           gallery_item = plugin._createGallery(URL.createObjectURL(files[i]));
@@ -72,8 +66,36 @@ export default class Upload {
     }
   };
   /**
+   * Filter Files (no duplicate)
+   * =================================================================
+   * @param {*} files
+   * @returns
+   */
+  _filter_files = (files) => {
+    const plugin = this;
+    let f;
+    let x;
+    let result = [];
+    let z = 0;
+    for (let i = 0; i < files.length; i++) {
+      x = 0;
+      f = [];
+      plugin.files.forEach((p_file) => {
+        if (p_file.name == files[i].name && p_file.size == files[i].size) {
+          f[x] = files[i];
+          x++;
+        }
+      });
+      if (isEmpty(f)) {
+        result[z] = files[i];
+        z++;
+      }
+    }
+    return result;
+  };
+  /**
    * Manage Input
-   * ==================================================================
+   * =======================================================================
    */
   _manageInputFile = () => {
     let plugin = this;
@@ -87,9 +109,12 @@ export default class Upload {
       plugin._handleDrop(files);
     });
   };
-  //=======================================================================
-  //Create image gallery
-  //=======================================================================
+  /**
+   * Create Gallery Items
+   * ========================================================================
+   * @param {*} value
+   * @returns
+   */
   _createGallery = (value) => {
     var gallery_item = $("<div /> </div>")
       .addClass("gallery_item")
@@ -104,9 +129,12 @@ export default class Upload {
     img_item.append(img);
     return gallery_item.append(img_item, img_remove);
   };
-  //=======================================================================
-  //Create Extradiv for name and size
-  //=======================================================================
+  /**
+   * Create Files actions
+   * =========================================================================
+   * @param {*} file
+   * @param {*} gallery_item
+   */
   _createExtraDiv = (file, gallery_item) => {
     gallery_item.append(
       $("<div></div>")

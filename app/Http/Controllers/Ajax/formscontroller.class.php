@@ -137,7 +137,8 @@ class FormsController extends Controller
             $data = $this->request->get();
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
-                $this->container->make($table . 'Manager'::class)->cleanDbFilesUrls();
+                $model = $this->container->make($table . 'Manager'::class);
+                $this->container->make(Files::class)->cleanDbFilesUrls([], $model->getAllItem(['where'=>[$model->get_colIndex()=>'IS NULL'], 'return_mode'=>'class']));
                 $this->jsonResponse(['result' => 'success', 'msg' =>'ok']);
             } else {
                 $this->jsonResponse(['result' => 'error', 'msg' => FH::showMessage('warning text-center', 'Bad CSRF Token!')]);
@@ -161,7 +162,7 @@ class FormsController extends Controller
                 $method = isset($data['custom_method']) ? $data['custom_method'] : 'getDetails';
                 if ($model->$method((int) $data[$model->get_colID()])) {
                     if ($model->count() === 1) {
-                        $model = current($model->get_results());
+                        $model = current($model->get_results())->media_prop_adjust();
                         $this->jsonResponse(['result' => 'success', 'msg' => ['items' => Sanitizer::cleanOutputModel($model), 'selectedOptions' => $this->get_options($model, $model_option, $data)]]);
                     }
                 } else {

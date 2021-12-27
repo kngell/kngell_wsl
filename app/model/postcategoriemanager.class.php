@@ -13,7 +13,15 @@ class PostCategorieManager extends Model
         $this->_modelName = str_replace(' ', '', ucwords(str_replace('_', ' ', $this->_table))) . 'Manager';
     }
 
-    public function add_categories(string $postID, array $params) : ?Model
+    public function save_categories(string $id, array $params) : ?Model
+    {
+        if ($this->_current_ctrl_method == 'update') {
+            return $this->update_categories(strval($id), $params);
+        }
+        return $this->add_categories(strval($id), $params);
+    }
+
+    private function add_categories(string $postID, array $params) : ?Model
     {
         $categories = isset($params['categorie']) ? json_decode($this->htmlDecode($params['categorie']), true) : [];
         if (json_last_error() === JSON_ERROR_NONE && isset($postID) && !empty($categories)) {
@@ -38,7 +46,7 @@ class PostCategorieManager extends Model
      * @param array $params
      * @return Model|null
      */
-    public function update_categories(string $postID, array $params) : ?Model
+    private function update_categories(string $postID, array $params) : ?Model
     {
         $postCat = $this->getAllbyIndex((string) $postID, ['return_mode' => 'class']);
         if ($postCat->count() > 0) {
