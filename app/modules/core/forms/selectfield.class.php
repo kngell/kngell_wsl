@@ -23,7 +23,7 @@ class SelectField extends BaseField
         return sprintf(
             '<select name="%s" class="form-select %s %s" id="%s" autocomplete="nope" placeholder=" " %s>%s</select>',
             $this->attribute,
-            $this->fieldclass ?? '',
+            isset($this->fieldclass) ? $this->fieldclass . ' ' . $this->attribute : $this->attribute,
             $this->hasErrors(),
             $this->fieldID ?? $this->attribute,
             $this->customAttribute,

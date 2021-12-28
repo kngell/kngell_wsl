@@ -111,15 +111,30 @@ class AdminController extends Controller
     //Manage Companies
     public function allcompaniesPage()
     {
-        // dd(($this->get_model('UsersManager'))->get_Tables_Columns('address_book'));
         $this->view_instance->set_pageTitle('All Companies');
-        $this->view_instance->render('admin' . DS . 'company' . DS . 'allcompanies');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $inputHidden = [
+            'compID'=>['id'=>'compID'],
+            'created_at'=> ['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+            'operation'=>['id'=>'operation'],
+        ];
+        $this->view_instance->render('admin' . DS . 'company' . DS . 'allcompanies', ['params'=>$this->response->frm_params('company-frm', $inputHidden)]);
     }
 
     public function allwarehousesPage()
     {
-        $this->view_instance->set_pageTitle('All WareHouses');
-        $this->view_instance->render('admin' . DS . 'warehouse' . DS . 'allwarehouses');
+        $this->view_instance->set_pageTitle('Company');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $inputHidden = [
+            'operation'=>['id'=>'operation'],
+            'whID'=> ['id'=>'whID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+        ];
+        $this->view_instance->render('admin' . DS . 'warehouse' . DS . 'allwarehouses', ['params'=>$this->response->frm_params('warehouse-frm', $inputHidden)]);
     }
 
     //Manage Companies
@@ -147,7 +162,14 @@ class AdminController extends Controller
     public function alltaxesPage()
     {
         $this->view_instance->set_pageTitle('Taxes Management');
-        $this->view_instance->render('admin' . DS . 'company' . DS . 'alltaxes');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'company' . DS . 'alltaxes', ['params'=>$this->response->frm_params('taxes-frm', [
+            'operation'=> ['id'=>'operation'],
+            'tID'=>['id'=>'tID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     public function allpostsPage()

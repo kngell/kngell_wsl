@@ -74,30 +74,31 @@ class CompanyManager extends Model
     //save addresse
     public function afterSave(array $params = [])
     {
-        $add = $this->container->make(AddressBookManager::class)->getDetails($params['saveID']->abID);
-        if ($add->count() === 1) {
-            $add = current($add->get_results());
-            $colID = $add->get_colID();
-            $add->id = $add->$colID;
+        try {
+            $add = $this->container->make(AddressBookManager::class)->getDetails($params['saveID']->abID);
+            if ($add->count() === 1) {
+                $add = current($add->get_results());
+                $colID = $add->get_colID();
+                $add->id = $add->$colID;
+            }
+            $add = $add->assign($params);
+            $add->tbl = $this->_table;
+            $colID = $this->get_colID();
+            $add->relID = empty($this->$colID) ? $params['saveID']->get_lastID() : $this->$colID;
+            if (!$add->save()) {
+                return false;
+            }
+            $add = null;
+            return $params['saveID'];
+        } catch (\Throwable $th) {
+            //throw $th;
         }
-        $add = $add->assign($params);
-        $add->tbl = $this->_table;
-        $colID = $this->get_colID();
-        $add->relID = empty($this->$colID) ? $params['saveID']->get_lastID() : $this->$colID;
-        if (!$add->save()) {
-            return false;
-        }
-        $add = null;
-
-        return $params;
     }
 
     // After Deleted
     public function afterDelete($params = [])
     {
-        $data = ['where' => ['relID' => $params[$this->get_colID()], 'tbl' => $this->_table]];
-
-        return $params[$this->get_colID()] ? $this->container->make(AddressBookManager::class)->delete('', $data) : false;
+        return $params[$this->get_colID()] ? $this->container->make(AddressBookManager::class)->delete(['relID' => $params[$this->get_colID()], 'tbl' => $this->_table], $params) : false;
     }
 
     //Get Details company

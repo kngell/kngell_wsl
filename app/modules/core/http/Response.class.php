@@ -65,4 +65,25 @@ class Response extends HttpGlobals
             ],
         ];
     }
+
+    public function frm_params(string $frm_name, array $inpuHidden)
+    {
+        return [
+            'action'=>'#',
+            'method' => 'post',
+            'formClass' => $frm_name . ' needs-validation',
+            'formCustomAttr' => 'novalidate',
+            'formID' => $frm_name,
+            'fieldWrapperClass'=>'input-box',
+            'token'=>Container::getInstance()->make(Token::class),
+            'enctype'=>'multipart/form-data',
+            'autocomplete'=>'nope',
+            'alertErr'=>true,
+            'inputHidden'=>$inpuHidden,
+            'fieldCommonclass'=>[
+                'fieldclass' => 'input-box__input',
+                'labelClass' => 'input-box__label',
+            ],
+        ];
+    }
 }

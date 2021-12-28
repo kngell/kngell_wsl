@@ -35,7 +35,6 @@ class AllPosts {
      * Init Crud Operations
      * ==========================================================================
      */
-
     let cruds = new Cruds({
       table: "posts",
       wrapper: phpPlugin.wrapper,
@@ -49,6 +48,7 @@ class AllPosts {
     });
     /**
      * Select 2 Categories initialization
+     * ====================================================================
      */
     let myselect2 = new select2();
     myselect2._init({
@@ -125,7 +125,7 @@ class AllPosts {
      */
     phpPlugin.wrapper.on("click", ".editBtn", function (e) {
       e.preventDefault();
-      phpPlugin.modalform.find("#operation").val("update");
+      phpPlugin.modalform.find("#operation").val("Update");
       const data = {
         std_fields: [
           "postID",

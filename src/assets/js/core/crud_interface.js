@@ -17,10 +17,11 @@ export default class Cruds {
     this.ck_content = data.hasOwnProperty("ck_content") ? data.ck_content : "";
     this.loader = data.hasOwnProperty("loader") ? data.loader : "";
   }
-
-  //=======================================================================
-  //Display All Plugins
-  //=======================================================================
+  /**
+   * Display All Items
+   * ===================================================
+   * @param {*} params
+   */
   _displayAll = (params) => {
     const plugin = this;
     let wrapper = this.wrapper;
@@ -113,11 +114,14 @@ export default class Cruds {
       select2: params.hasOwnProperty("select")
         ? plugin._get_select2_data(params.select)
         : "",
-      imageUrlsAry: params.hasOwnProperty("imageUrlsAry")
-        ? params.imageUrlsAry
-        : [],
       folder: params.hasOwnProperty("folder") ? params.folder : "",
     };
+    params.hasOwnProperty("imageUrlsAry")
+      ? (data.imageUrlsAry = params.imageUrlsAry)
+      : "";
+    // imageUrlsAry: params.hasOwnProperty("imageUrlsAry")
+    // ? params.imageUrlsAry
+    // : [],
     switch (plugin.form.find("#operation").val()) {
       case "add":
       case "update":
@@ -159,9 +163,10 @@ export default class Cruds {
                     ...dysplayparams
                   } = params;
                   plugin._displayAll(dysplayparams);
-                } else {
-                  location.reload();
                 }
+                // else {
+                //   location.reload();
+                // }
               });
             }
           }
@@ -506,6 +511,7 @@ export default class Cruds {
           ? plugin.modal.find(data.upload_img).attr("src", AVATAR)
           : "";
         plugin.modal.find("input[type='checkbox']").empty();
+        plugin.modal.find("textarea").empty();
         if (data.hasOwnProperty("dropzone")) {
           $(data.dropzone.element)
             .find(".gallery-wrapper .gallery_item")

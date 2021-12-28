@@ -45,11 +45,11 @@ class THWarehouse
                 ' . $item->denomination . '
             </td>
             <td>
-            ' . implode($item->get_countrie($item->country_code)) . '
+            ' . implode($item->get_countrie(strval($item->country_code))) . '
             </td>
             <td class="text-center">     
                 <form class="warehouse-status" id="warehouse-status' . $item->whID . '"/>'
-                . FH::csrfInput('csrftoken', $this->token->generate_token(8, 'brand-status' . $item->whID)) . '
+                . FH::csrfInput('csrftoken', $this->token->generate_token(8, 'warehouse-status' . $item->whID)) . '
                 <input type="hidden" name="whID" value="' . $item->whID . '">
                 <button type="button" title="status" class="text-danger activateBtn"> <i class="far fa-power-off fa-lg" ' . $active . '></i></button>
                 </form>
@@ -63,7 +63,7 @@ class THWarehouse
                 </form>
                 &nbsp;
                 <form class="delete-warehouse-frm" id="delete-warehouse-frm' . $item->whID . '">
-                    ' . FH::csrfInput('csrftoken', $this->token->generate_token(8, 'delete-brand-frm' . $item->whID)) . '
+                    ' . FH::csrfInput('csrftoken', $this->token->generate_token(8, 'delete-warehouse-frm' . $item->whID)) . '
                     <input type="hidden" name="whID" value="' . $item->whID . '">
                     <button type="submit" title="Delete Brand" class="text-danger deleteBtn"><i class="far fa-trash-alt fa-lg"></i></button>
                 </form>

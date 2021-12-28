@@ -3,6 +3,7 @@ import select2 from "corejs/select2_manager";
 class Taxes {
   constructor(element) {
     this.element = element;
+    this.selectTag = ["categorieID"];
   }
 
   /**
@@ -21,7 +22,7 @@ class Taxes {
   _setupVariables = () => {
     this.wrapper = this.element.find(".card");
     this.modalbox = this.element.find("#modal-box");
-    this.modalform = this.element.find("#modal-box #taxes-frm");
+    this.modalform = this.element.find("#taxes-frm");
   };
 
   /**
@@ -31,24 +32,29 @@ class Taxes {
    */
   _setupEvents = () => {
     var phpPlugin = this;
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
+    console.log(phpPlugin.wrapper);
+    /**
+     * Init Crud Operations
+     * ==========================================================================
+     */
     let cruds = new Cruds({
       table: "taxes",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      select_tag: ["#categorieID"],
-      bsmodal: document.getElementById("modal-box"),
+      select_tag: phpPlugin.selectTag,
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_taxes_page",
     });
 
     /**
      * display All items
      * =======================================================================
      */
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "spcefics_values",
     });
 
@@ -62,48 +68,79 @@ class Taxes {
       element: phpPlugin.modalform.find("#categorieID"),
       tbl_options: "categories",
       placeholder: "Please select a associate Categorie",
-      url: "forms/showDetails",
+      url: "showDetails",
+      csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
+      frm_name: phpPlugin.modalform.attr("id"),
     });
-    //set create/add function
-    cruds._set_addBtn();
-    //Add or update
-
-    cruds._add_update({
-      datatable: true,
-      swal: true,
-      select: ["categorieID"],
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
-      data_type: "spcefics_values",
+    /**
+     * Add or Update Ware House
+     * ======================================================================
+     */
+    phpPlugin.modalbox.on("submit", "#taxes-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        select: phpPlugin.selectTag,
+        data_type: "spcefics_values",
+        // model_method: "get_Products",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+      });
     });
-    //edit
-    cruds._edit({
-      tbl_options: ["categories"],
-      table: "taxes",
-      std_fields: [
-        "tID",
-        "t_name",
-        "t_descr",
-        "t_rate",
-        "t_class",
-        "status",
-        "created_at",
-        "updated_at",
-        "deleted",
-        "categorieID",
-      ],
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
     });
-    //clean form
-    cruds._clean_form();
-    //delete items
+    /**
+     * Edit form
+     * =======================================================================
+     */
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "tID",
+          "t_name",
+          "t_descr",
+          "t_rate",
+          "t_class",
+          "status",
+          "created_at",
+          "updated_at",
+          "deleted",
+          "categorieID",
+        ],
+        tbl_options: ["categories"],
+        table: "taxes",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
+    });
+    /**
+     * Clean Form and server
+     * =====================================================================
+     */
+    cruds._clean_form({
+      select: phpPlugin.selectTag,
+      inputHidden: ["operation", "tID", "created_at", "updated_at", "deleted"],
+    });
+    /**
+     * Delete
+     * =====================================================================
+     */
     cruds._delete({
       swal: true,
       datatable: true,
-      url_check: "forms/checkdelete",
+      url_check: "checkdelete",
       delete_frm_class: ".delete-taxe-frm",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
+      data_type: "values",
+      frm: true,
     });
+
     //Activate item
     cruds._active_inactive_elmt({ table: "taxes" });
   };

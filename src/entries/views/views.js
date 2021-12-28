@@ -118,9 +118,11 @@ import "views/backend/admin/users/permissions.php";
 import "views/backend/admin/company/allcompanies.php";
 import "views/backend/admin/company/alltaxes.php";
 import "views/backend/admin/company/company_details.php";
-import "views/backend/admin/company/partials/form.php";
+import "views/backend/admin/company/partials/_comp_frm.php";
+import "views/backend/admin/company/partials/_taxe_frm.php";
 // Warehouses
 import "views/backend/admin/warehouse/allwarehouses.php";
+import "views/backend/admin/warehouse/partials/_fwh_form.php";
 
 //Settings
 import "views/backend/admin/settings/general.php";

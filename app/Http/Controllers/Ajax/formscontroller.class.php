@@ -192,7 +192,7 @@ class FormsController extends Controller
                     AuthManager::check_UserSession();
                     $model->populate($data)->setselect2Data($data);
                     $model->id = $data[$colID];
-                    method_exists('Form_rules', $table) ? $model->validator($data, Form_rules::$table()) : '';
+                    method_exists('Form_rules', $table) ? $model->validator(H::getObjectProperties($model), Form_rules::$table()) : '';
                     if ($model->validationPasses()) {
                         $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model, $this->container);
                         if ($file['success']) {

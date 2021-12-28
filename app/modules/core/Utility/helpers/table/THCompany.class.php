@@ -34,9 +34,9 @@ class THCompany
         foreach ($data as $item) {
             $output .= '<tr>
             <td>
-                <a href="' . PROOT . 'forms/details/' . $item->compID . '">' . htmlspecialchars_decode($item->sigle, ENT_NOQUOTES) . '</a>
+                <a href="' . PROOT . 'forms/details/' . $item->compID . '">' . htmlspecialchars_decode($item->sigle ?? '', ENT_NOQUOTES) . '</a>
             </td>
-            <td>' . htmlspecialchars_decode($item->denomination, ENT_NOQUOTES) . '
+            <td>' . htmlspecialchars_decode($item->denomination ?? '', ENT_NOQUOTES) . '
             </td>
             <td>' . $item->couriel . '
             </td>
@@ -50,7 +50,7 @@ class THCompany
                     class="text-success text-center"><i class="fas fa-address-book fa-lg"></i></a>&nbsp;
             </td>
             <td class="action">
-                <a href="' . PROOT . 'admin/company_details/' . $item->compID . '" title="view details" class="text-info"><i
+                <a href="company_details/' . $item->compID . '" title="view details" class="text-info"><i
                         class="fas fa-info-circle fa-lg"></i></a>&nbsp;&nbsp;
                 <form class="edit-company-frm" id="edit-company-frm' . $item->compID . '">
                 ' . FH::csrfInput('csrftoken', $this->token->generate_token(8, 'edit-company-frm' . $item->compID)) . '

@@ -265,8 +265,8 @@ class Controller
         $this->view_instance = $this->get_view();
         $this->view_instance->token = $this->token;
         $this->helper = $this->container->make(ControllerHelper::class);
-        $this->view_instance->settings = $this->helper->getSettings();
         if ($this->filePath == 'Client' . DS) {
+            $this->view_instance->settings = $this->helper->getSettings();
             $this->session->set(BRAND_NUM, $this->brand());
             $data = $this->helper->get_product_and_cart((int) $this->session->get(BRAND_NUM));
             $this->view_instance->userFrm = $this->container->make(Form::class);

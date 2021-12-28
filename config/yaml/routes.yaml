@@ -123,6 +123,9 @@ get:
   allposts:
     controller: admin
     method: allposts
+  company_details:
+    controller: admin
+    method: company_details
 # POST Http routes=============================================================================================
 post:
   # Visitors Controller -------------------------------------------------------------------------------------------

@@ -120,7 +120,7 @@ class FH
                         if (isset($params['return_mode']) && $params['return_mode'] == 'index') {
                             return $model->getAllbyIndex($params['id']);
                         } else {
-                            return $model->getAllItem(['return_mode' => 'class'])->get_results();
+                            return $model->getAllItem(['return_mode' => 'class', 'orderby'=>$model->get_colID() . ' DESC'])->get_results();
                         }
                     break;
                     case $params['data_type'] && $params['data_type'] == 'spcefics_values':

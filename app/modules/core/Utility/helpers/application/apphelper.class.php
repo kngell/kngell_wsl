@@ -40,6 +40,7 @@ final class AppHelper
                 'PostFileUrlManager'=>fn () =>new PostFileUrlManager(),
                 'PostCategorieManager'=>fn () =>new PostCategorieManager(),
                 'PostsManager'=>fn () =>new PostsManager(),
+                'AddressBookManager'=>fn () =>new AddressBookManager(),
             ];
     }
 }

@@ -134,11 +134,13 @@ abstract class AbstractModel implements ModelInterface
     {
         if ($m->count() === 1) {
             $model = current($m->get_results());
-            $media_key = UploadHelper::get_mediaKey($model);
-            $model->$media_key = $model->$media_key !== null ? unserialize($model->$media_key) : ['products' . US . 'product-80x80.jpg'];
-            if (is_array($model->$media_key)) {
-                foreach ($model->$media_key as $key => $url) {
-                    $model->$media_key[$key] = IMG . $url; // ImageManager::asset_img($url);//
+            $media_key = $model->get_media();
+            if ($media_key != '') {
+                $model->$media_key = $model->$media_key != null ? unserialize($model->$media_key) : ['products' . US . 'product-80x80.jpg'];
+                if (is_array($model->$media_key)) {
+                    foreach ($model->$media_key as $key => $url) {
+                        $model->$media_key[$key] = IMG . $url; // ImageManager::asset_img($url);//
+                    }
                 }
             }
             $m->get_results()[0] = $model;
@@ -178,7 +180,7 @@ abstract class AbstractModel implements ModelInterface
 
     public function get_status() : string
     {
-        return isset($this->_status) ? $this->_status : '';
+        return isset($this->_status) ? $this->_status : 'status';
     }
 
     //get indexed colID
@@ -396,9 +398,9 @@ abstract class AbstractModel implements ModelInterface
         if (isset($this->parentID) && $m->get_modeName() == $this->get_modeName()) {
             $selected_option = $m->getDetails($this->parentID);
         } else {
-            $selected_option = $m->getDetails($this->{$m->colOptions});
+            $selected_option = $this->{$m->colOptions} != null ? $m->getDetails($this->{$m->colOptions}) : null;
         }
-        if ($selected_option->count() === 1) {
+        if ($selected_option != null && $selected_option->count() === 1) {
             $selected_option = current($selected_option->get_results());
             $response[$selected_option->{$m->get_colID()}] = !empty($colTile) ? $this->htmlDecode($selected_option->$colTitle) : $this->get_customTitle($this);
         }
@@ -466,12 +468,14 @@ abstract class AbstractModel implements ModelInterface
     //Get countrie
     public function get_countrie(string $ctr = '')
     {
-        $data = file_get_contents(FILES . 'json' . DS . 'data' . DS . 'countries.json');
-        $country = array_filter(array_column(json_decode($data, true), 'name'), function ($countrie) use ($ctr) {
-            return $countrie == $ctr;
-        }, ARRAY_FILTER_USE_KEY);
-
-        return $country;
+        if ($ctr != '') {
+            $data = file_get_contents(FILES . 'json' . DS . 'data' . DS . 'countries.json');
+            $country = array_filter(array_column(json_decode($data, true), 'name'), function ($countrie) use ($ctr) {
+                return $countrie == $ctr;
+            }, ARRAY_FILTER_USE_KEY);
+            return $country;
+        }
+        return [];
     }
 
     public function get_idFromString(array $params, string $name)

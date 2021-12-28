@@ -13,7 +13,7 @@ abstract class BaseField implements FieldInterface
     protected const Type_BUTTON = 'button';
     protected string $attribute = '';
     protected string $label;
-    protected string $FieldwrapperClass;
+    protected string $FieldwrapperClass = '';
     protected string $labelClass;
     protected string $require;
     protected string $fieldclass;
@@ -28,6 +28,7 @@ abstract class BaseField implements FieldInterface
     protected string $labelTextClass;
     protected string $tagText = '';
     protected string $title = '';
+    protected string $placeholder = '';
 
     protected Model $model;
 
@@ -118,9 +119,15 @@ abstract class BaseField implements FieldInterface
         return $this;
     }
 
-    public function title(string $title)
+    public function title(string $title) : self
     {
         $this->title = $title;
+        return $this;
+    }
+
+    public function placeholder(string $placeholder) : self
+    {
+        $this->placeholder = $placeholder;
         return $this;
     }
 
@@ -159,7 +166,6 @@ abstract class BaseField implements FieldInterface
         $actual = $this->fieldclass ?? '';
         $separator = empty($this->fieldclass) ? '' : ' ';
         $this->fieldclass = $actual . $separator . $custom;
-
         return $this;
     }
 
@@ -203,9 +209,7 @@ abstract class BaseField implements FieldInterface
 
     public function setFieldWrapperClass(?string $wrapper) : self
     {
-        $actual = $this->FieldwrapperClass ?? '';
-        $this->FieldwrapperClass = $actual . ' ' . $wrapper;
-
+        $this->FieldwrapperClass .= ' ' . $wrapper;
         return $this;
     }
 

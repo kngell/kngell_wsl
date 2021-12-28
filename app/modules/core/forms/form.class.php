@@ -71,6 +71,12 @@ class Form
         return $this;
     }
 
+    public function class(string $class) : self
+    {
+        $this->formClass .= ' ' . $class;
+        return $this;
+    }
+
     public function begin(string $alertid = '')
     {
         $id = $alertid != '' ? $alertid : 'alertErr';

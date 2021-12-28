@@ -65,7 +65,7 @@ class CountriesManager
         $matches = [];
         foreach ($countries as $key => $value) {
             $response[] = ['id' => $key, 'text' => $value];
-            if ($key == $ctr[$m->colOptions]) {
+            if ($ctr[$m->colOptions] != null && $key == $ctr[$m->colOptions]) {
                 $matches[] = $key;
             }
         }

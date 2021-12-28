@@ -208,19 +208,26 @@ class Model extends AbstractModel
      */
     public function delete(mixed $cond = null, array $params = [])
     {
+        $conditions = [];
         switch (true) {
-            case is_array($cond) && count($cond) && empty($params):
+            case is_array($cond) && count($cond):
                 $conditions = $cond;
                 break;
             case $cond == 'all' && empty($params) && !isset($this->{$this->get_colID()}):
                 $conditions = [$cond];
                 break;
             default:
-                $conditions = [$this->get_colID() => !isset($cond) ? $this->{$this->get_colID()} : $cond];
+            if ($cond == '' || !isset($cond)) {
+                if ($this->{$this->get_colID()} != null) {
+                    $conditions = [$this->get_colID() => $this->{$this->get_colID()}];
+                }
+            } else {
+                $conditions = [$this->get_colID() => $cond];
+            }
                 break;
         }
 
-        return $this->run_delete($conditions, $params);
+        return !empty($conditions) ? $this->run_delete($conditions, $params) : null;
     }
 
     //Partial save

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 $this->start('head'); ?>
 <!-------Costum-------->
-<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_product_page')?>" />
+<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_taxes_page')?>" />
 <link href="<?= $this->asset('css/custom/backend/admin/company/taxes', 'css') ?? ''?>" rel="stylesheet" type="text/css">
 <?php $this->end(); ?>
 <?php $this->start('body'); ?>
@@ -54,62 +54,18 @@ $this->start('head'); ?>
             </div>
         </div>
     </div>
-</div>
-<!----------Add new categorie Modal-------->
-<div class="modal fade" role="dialog" id="modal-box">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"> Taxes</h5>
-                <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="#" method="post" id="taxes-frm" class="px-3 needs-validation" novalidate
-                    enctype="multipart/form-data">
-                    <?= FH::csrfInput('csrftoken', $this->token->generate_token(8, 'taxes-frm')); ?>
-                    <input type="hidden" name="operation" id="operation">
-                    <input type="hidden" name="tID" id="tID">
-                    <input type="hidden" name="created_at" id="created_at">
-                    <input type="hidden" name="updated_at" id="updated_at">
-                    <input type="hidden" name="deleted" id="deleted">
-                    <div id="alertErr"></div>
-                    <div class="mb-3">
-                        <input type="text" name="t_name" id="t_name" class="form-control " placeholder="Taxe Name"
-                            aria-describedby="taxes-feedback">
-                        <div class="invalid-feedback" id="taxes-feedback"></div>
-                    </div>
-                    <div class="mb-3">
-                        <input type="number" name="t_rate" id="t_rate" class="form-control" placeholder="taux..."
-                            aria-describedby="t_rate-feedback"></input>
-                        <div class="invalid-feedback" id="t_rate-feedback"></div>
-                    </div>
 
-                    <div class="mb-3">
-                        <input type="text" name="t_class" id="t_class" class="form-control" placeholder="class..."
-                            aria-describedby="t_class-feedback"></input>
-                        <div class="invalid-feedback" id="t_class-feedback"></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <textarea name="t_descr" id="t_descr" class="form-control ck-content"
-                            placeholder="Description..." aria-describedby="drescription-feedback"></textarea>
-                        <div class="invalid-feedback" id="drescription-feedback"></div>
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="status" name="status" value="on">
-                        <label for="status" class="form-check-label">Active</label>
-                    </div>
-                    <div class="mb-3 select-box">
-                        <select class="form-control categorieID" id="categorieID" name="categorieID"
-                            multiple="multiple">
-                            <option value="ALL">All</option>
-                        </select>
-                        <span class="custom-arrow"></span>
-                    </div>
-                    <div class="mb-3 justify-content-between">
-                        <input type="submit" name="submitBtn" id="submitBtn" value="Submit" class="button">
-                    </div>
-                </form>
+    <!----------Add new categorie Modal-------->
+    <div class="modal fade" role="dialog" id="modal-box">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"> Taxes</h5>
+                    <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <?php require_once 'partials/_taxe_frm.php'; ?>
+                </div>
             </div>
         </div>
     </div>

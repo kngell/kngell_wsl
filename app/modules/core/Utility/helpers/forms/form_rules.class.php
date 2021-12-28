@@ -397,4 +397,36 @@ class Form_rules
             ],
         ];
     }
+
+    public static function warehouse()
+    {
+        return [
+            'wh_name' => [
+                'display' => 'Warehouse Name',
+                'required' => true,
+                'min'=>2,
+                'max' => 50,
+            ],
+            'company' => [
+                'display' => 'Company Name',
+                'required' => true,
+            ],
+        ];
+    }
+
+    public static function taxes() : array
+    {
+        return [
+            't_name' => [
+                'display' => 'Taxe Name',
+                'required' => true,
+                'min'=>2,
+                'max' => 50,
+            ],
+            't_rate' => [
+                'display' => 'Taxe rate',
+                'required' => true,
+            ],
+        ];
+    }
 }

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 $this->start('head'); ?>
 <!-------Costum-------->
-<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_product_page')?>" />
+<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_company_page')?>" />
 <link href="<?= $this->asset('css/custom/backend/admin/company/allcompanies', 'css') ?? ''?>" rel="stylesheet"
     type="text/css">
 <?php $this->end(); ?>
@@ -59,7 +59,7 @@ $this->start('head'); ?>
                         <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <?php require_once 'partials/form.php'; ?>
+                        <?php require_once 'partials/_comp_frm.php'; ?>
                     </div>
                 </div>
             </div>

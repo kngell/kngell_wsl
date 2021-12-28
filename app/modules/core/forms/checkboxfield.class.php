@@ -25,7 +25,7 @@ class CheckBoxField extends BaseField
             $this->type,
             $this->attribute,
             'on',
-            $this->fieldclass ?? '',
+            isset($this->fieldclass) ? 'form-check-input ' . $this->fieldclass : ' form-check-input',
             $this->hasErrors(),
             !empty($this->fieldID) ? $this->fieldID : $this->attribute,
             $this->customAttribute,

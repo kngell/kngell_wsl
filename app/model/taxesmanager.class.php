@@ -6,6 +6,8 @@ class TaxesManager extends Model
     protected $_colID = 'tID';
     protected $_table = 'taxes';
     protected $_colTitle = 't_name';
+    protected array $checkboxes = ['status'];
+    // protected array  $select2_field = ['categorieID'];
 
     //=======================================================================
     //construct
@@ -104,7 +106,7 @@ class TaxesManager extends Model
                 }
                 foreach ($select2_data as $option) {
                     $taxes_region->tr_catID = $option['id'];
-                    $taxes_region->tr_tax_ID = $this->$colID;
+                    $taxes_region->tr_tax_ID = !empty($this->$colID) ? $this->$colID : $this->get_lastID();
                     if (!$taxes_region->save()) {
                         $error = true;
                         break;
@@ -113,7 +115,7 @@ class TaxesManager extends Model
             }
         }
 
-        return !$error;
+        return !$error ? $params['saveID'] : null;
     }
 
     public function get_fieldName(string $table = '')

@@ -32,22 +32,29 @@ class Warehouse {
    */
   _setupEvents = () => {
     var phpPlugin = this;
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
+
+    /**
+     * Init Crud Operations
+     * ==========================================================================
+     */
     let cruds = new Cruds({
       table: "warehouse",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      bsmodal: document.getElementById("modal-box"),
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_warehouse_page",
+      select_tag: phpPlugin.selectTag,
     });
+
     /**
      * display All items
      * =======================================================================
      */
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "spcefics_values",
     });
 
@@ -61,58 +68,90 @@ class Warehouse {
       element: phpPlugin.modalform.find("#company"),
       tbl_options: "company",
       placeholder: "Please select a company",
-      url: "forms/showDetails",
+      url: "showDetails",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
+
     select._init({
       element: phpPlugin.modalform.find("#country_code"),
       placeholder: "Please select a Country",
-      url: "guests/get_countries",
+      url: "get_countries",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
-    //set create/add function
-    cruds._set_addBtn();
-    //Add or update
+    /**
+     * Add or Update Ware House
+     * ======================================================================
+     */
+    phpPlugin.modalbox.on("submit", "#warehouse-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        select: phpPlugin.selectTag,
+        data_type: "spcefics_values",
+        // model_method: "get_Products",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+      });
+    });
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
+    });
+    /**
+     * Edit form
+     * =======================================================================
+     */
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "whID",
+          "wh_name",
+          "wh_descr",
+          "status",
+          "created_at",
+          "company",
+          "country_code",
+          "updated_at",
+          "deleted",
+        ],
+        tbl_options: ["company", "countries"],
+        table: "warehouse",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
+    });
 
-    cruds._add_update({
-      datatable: true,
-      swal: true,
+    /**
+     * Clean Form and server
+     * =====================================================================
+     */
+    cruds._clean_form({
       select: phpPlugin.selectTag,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
-      data_type: "spcefics_values",
+      inputHidden: ["operation", "whID", "created_at", "updated_at", "deleted"],
     });
-    //edit
-    cruds._edit({
-      tbl_options: ["company", "countries"],
-      table: "warehouse",
-      std_fields: [
-        "whID",
-        "wh_name",
-        "wh_descr",
-        "status",
-        "created_at",
-        "company",
-        "country_code",
-        "updated_at",
-        "deleted",
-      ],
-    });
-    //clean form
-    cruds._clean_form({ select: phpPlugin.selectTag });
-    //delete items
+
+    /**
+     * Delete
+     * =====================================================================
+     */
     cruds._delete({
       swal: true,
       datatable: true,
-      url_check: "forms/checkdelete",
-      delete_frm_class: ".delete-taxe-frm",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
+      url_check: "checkdelete",
+      delete_frm_class: ".delete-warehouse-frm",
+      data_type: "values",
+      frm: true,
     });
+
     //Activate item
-    cruds._active_inactive_elmt({ table: "taxes" });
+    cruds._active_inactive_elmt({ table: "warehouse" });
   };
 }
 document.addEventListener("DOMContentLoaded", () => {
