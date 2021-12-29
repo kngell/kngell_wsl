@@ -21,7 +21,7 @@ class ButtonField extends BaseField
             $this->fieldclass ?? '',
             !empty($this->fieldID) ? $this->fieldID : $this->attribute,
             $this->customAttribute ?? '',
-            $this->tagText
+            $this->icon != '' ? $this->icon . '&nbsp;' . $this->tagText : $this->tagText
         );
     }
 

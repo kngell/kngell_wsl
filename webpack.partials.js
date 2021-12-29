@@ -58,7 +58,9 @@ const serverOpt = {
     },
   },
   devMiddleware: {
-    writeToDisk: true,
+    writeToDisk: (filePath) => {
+      return /^(?!.*(hot)).*/.test(filePath);
+    },
   },
   client: {
     logging: "none",

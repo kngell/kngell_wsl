@@ -1,4 +1,5 @@
-<div class="mb-3{{classwrapper}}">
+<div class="{{classwrapper}}">
     {{labelTemp}}
-    <div class="invalid-feedback">{{feedback}}</div>
+    {{feedbackField}}
+    {{helpBlock}}
 </div>

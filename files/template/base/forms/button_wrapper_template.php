@@ -1,4 +1,4 @@
-<div class="mb-3 {{classwrapper}}">
+<div class="{{classwrapper}}">
     <div class="action">
         {{button}}
     </div>

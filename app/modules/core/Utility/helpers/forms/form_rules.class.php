@@ -59,6 +59,10 @@ class Form_rules
                 'max' => 65,
                 'unique' => 'shipping_class',
             ],
+            'price' => [
+                'display' => 'Shipping Price',
+                'required' => true,
+            ],
         ];
     }
 

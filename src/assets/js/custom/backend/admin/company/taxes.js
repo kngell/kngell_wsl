@@ -33,7 +33,7 @@ class Taxes {
   _setupEvents = () => {
     var phpPlugin = this;
     const csrftoken = document.querySelector('meta[name="csrftoken"]');
-    console.log(phpPlugin.wrapper);
+
     /**
      * Init Crud Operations
      * ==========================================================================

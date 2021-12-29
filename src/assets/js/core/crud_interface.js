@@ -110,18 +110,17 @@ export default class Cruds {
       frm: plugin.form,
       frm_name: params.frm_name,
       table: plugin.table,
-      categories: plugin._get_selected_categories(params.categorie),
-      select2: params.hasOwnProperty("select")
-        ? plugin._get_select2_data(params.select)
-        : "",
-      folder: params.hasOwnProperty("folder") ? params.folder : "",
     };
     params.hasOwnProperty("imageUrlsAry")
       ? (data.imageUrlsAry = params.imageUrlsAry)
       : "";
-    // imageUrlsAry: params.hasOwnProperty("imageUrlsAry")
-    // ? params.imageUrlsAry
-    // : [],
+    params.hasOwnProperty("select")
+      ? (data.select2 = plugin._get_select2_data(params.select))
+      : "";
+    params.hasOwnProperty("categorie")
+      ? (data.categories = plugin._get_selected_categories(params.categorie))
+      : "";
+    params.hasOwnProperty("folder") ? (data.folder = params.folder) : "";
     switch (plugin.form.find("#operation").val()) {
       case "add":
       case "update":

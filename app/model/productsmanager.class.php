@@ -8,6 +8,7 @@ class ProductsManager extends Model
     protected $_colContent = '';
     protected array $checkboxes = ['p_charge_tax', 'p_track_qty', 'p_continious_sell'];
     protected array  $select2_field = ['p_company', 'p_warehouse', 'p_shipping_class', 'p_unitID'];
+    protected string $_media_img = 'p_media';
 
     /**
      * Main Contructor
@@ -120,9 +121,9 @@ class ProductsManager extends Model
     {
         $options = $this->get_options_data($m->get_tableName());
         $response = [];
+        $colTitle = array_pop($options);
+        $colID = array_pop($options);
         if ($options) {
-            $colTitle = array_pop($options);
-            $colID = array_pop($options);
             if (count($options) > 0) {
                 foreach ($options as $item) {
                     $response[$item->$colID] = $this->htmlDecode($item->$colTitle);

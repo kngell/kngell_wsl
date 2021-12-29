@@ -19,25 +19,36 @@ export default class Upload {
       }
     }
     data["data_type"] = "select2";
-    let select = params.element.select2({
-      placeholder: "---" + params.placeholder + "---",
-      maximumInputLength: 20,
-      tags: true,
-      tokenSeparators: [";", "\n", "\t"],
-      allowClear: true,
-      width: "resolve",
-      ajax: select2AjaxParams(data),
-      dropdownParent: params.hasOwnProperty("dropdownParent")
-        ? params.dropdownParent
-        : "",
-      multiple: params.hasOwnProperty("multiple") ? params.multiple : false,
-    });
+    this.params.hasOwnProperty("parentID")
+      ? (data.parentID = this.params.parentID)
+      : "";
+    let select = params.element
+      .select2({
+        placeholder: "---" + params.placeholder + "---",
+        maximumSelectionLength: 2,
+        tags: true,
+        // tokenSeparators: [";", "\n", "\t"],
+        allowClear: true,
+        width: "100%",
+        ajax: select2AjaxParams(data),
+        dropdownParent: params.element.parent(),
+      })
+      .on("select2:close", function () {
+        $(this)
+          .removeClass("is-invalid")
+          .parent()
+          .find(".invalid-feedback")
+          .html("");
+      });
+
     plugin.select = select;
     return plugin;
   };
   _destroy = () => {
+    const plugin = this;
     if (this.select.hasClass("select2-hidden-accessible")) {
       this.select.select2("destroy");
     }
+    return plugin;
   };
 }

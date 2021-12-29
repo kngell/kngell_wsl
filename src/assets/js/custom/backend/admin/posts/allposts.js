@@ -125,7 +125,7 @@ class AllPosts {
      */
     phpPlugin.wrapper.on("click", ".editBtn", function (e) {
       e.preventDefault();
-      phpPlugin.modalform.find("#operation").val("Update");
+      phpPlugin.modalform.find("#operation").val("update");
       const data = {
         std_fields: [
           "postID",

@@ -96,6 +96,7 @@ import "views/backend/admin/calendar.php";
 // Admin pages products
 import "views/backend/admin/products/allcategories.php";
 import "views/backend/admin/products/allproducts.php";
+import "views/backend/admin/products/partials/_product_frm.php";
 import "views/backend/admin/products/product_details.php";
 import "views/backend/admin/products/new_product.php";
 import "views/backend/admin/products/allunits.php";
@@ -107,6 +108,7 @@ import "views/backend/admin/posts/partials/_post_form.php";
 
 //Admin pages Shipping
 import "views/backend/admin/shipping/shippingclass.php";
+import "views/backend/admin/shipping/partials/_shipping_frm.php";
 
 //admin contact page
 import "views/backend/admin/home/contact-us.php";

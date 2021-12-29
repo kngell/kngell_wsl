@@ -13,9 +13,9 @@ abstract class BaseField implements FieldInterface
     protected const Type_BUTTON = 'button';
     protected string $attribute = '';
     protected string $label;
-    protected string $FieldwrapperClass = '';
+    protected string $FieldwrapperClass = 'mb-3';
     protected string $labelClass;
-    protected string $require;
+    protected string $require = '';
     protected string $fieldclass;
     protected string $fieldID;
     protected string $customAttribute = '';
@@ -29,6 +29,10 @@ abstract class BaseField implements FieldInterface
     protected string $tagText = '';
     protected string $title = '';
     protected string $placeholder = '';
+    protected string $helpBlock = '';
+    protected string $options = '';
+    protected string $_checked = '';
+    protected string $icon = '';
 
     protected Model $model;
 
@@ -53,10 +57,10 @@ abstract class BaseField implements FieldInterface
         return $this;
     }
 
-    public function setFieldWrapper(string $fieldWrapper)
-    {
-        $this->fieldWrapper = $fieldWrapper;
-    }
+    // public function setFieldWrapper(string $fieldWrapper)
+    // {
+    //     $this->fieldWrapper = $fieldWrapper;
+    // }
 
     public function setAttr(string $attribute) : self
     {
@@ -103,11 +107,14 @@ abstract class BaseField implements FieldInterface
     public function setDefault() : self
     {
         foreach ($this as $key => $value) {
-            if (is_string($value)) {
+            if ($key == 'FieldwrapperClass') {
+                $this->{$key} = 'mb-3';
+            } elseif (is_string($value)) {
                 $this->{$key} = '';
-            }
-            if (is_bool($value)) {
-                $this->{$key} = false;
+            } else {
+                if (is_bool($value)) {
+                    $this->{$key} = false;
+                }
             }
         }
         return $this;
@@ -116,6 +123,15 @@ abstract class BaseField implements FieldInterface
     public function text(string $text)
     {
         $this->tagText = $text;
+        return $this;
+    }
+
+    public function icon(string $iconClass) : self
+    {
+        $ic = '<i class= "';
+        $ic .= $iconClass;
+        $ic .= '"></i>';
+        $this->icon = $ic;
         return $this;
     }
 
@@ -207,13 +223,28 @@ abstract class BaseField implements FieldInterface
         return $this;
     }
 
+    public function removeWrapperClass(string $class) : self
+    {
+        $this->FieldwrapperClass = str_replace($class, '', $this->FieldwrapperClass);
+        return $this;
+    }
+
     public function setFieldWrapperClass(?string $wrapper) : self
     {
         $this->FieldwrapperClass .= ' ' . $wrapper;
         return $this;
     }
 
-    public function req()
+    public function helpBlock(string $str) : self
+    {
+        $span = ' <span class="help-block"><small>';
+        $span .= $str;
+        $span .= '</small></span>';
+        $this->helpBlock = $span;
+        return $this;
+    }
+
+    public function required()
     {
         $this->require = '<span class="text-danger">*</span>';
 
@@ -243,6 +274,11 @@ abstract class BaseField implements FieldInterface
         }
 
         return $this->label;
+    }
+
+    public function feedbackField() : string
+    {
+        return '<div class="invalid-feedback">{{feedback}}</div>';
     }
 
     public function labelDescrValue()
@@ -296,8 +332,20 @@ abstract class BaseField implements FieldInterface
         $template = str_replace('{{inputID}}', $this->fieldID ?? $this->attribute, $template);
         $template = str_replace('{{classlabel}}', $this->labelClass ?? '', $template);
         $template = str_replace('{{label}}', $this->label ?? '', $template);
-        $template = str_replace('{{req}}', $this->require ?? '', $template);
+        $template = str_replace('{{req}}', ($this->require != '') ? $this->require : '', $template);
 
+        return $template;
+    }
+
+    public function FieldTemplate(): string
+    {
+        $template = file_get_contents(FILES . 'template' . DS . 'base' . DS . 'forms' . DS . 'inputfieldTemplate.php');
+        $template = str_replace('{{classwrapper}}', $this->FieldwrapperClass ?? '', $template);
+        $template = str_replace('{{feedbackField}}', $this->require != '' ? $this->feedbackField() : '', $template);
+        $template = str_replace('{{feedback}}', $this->errors(), $template);
+        $template = str_replace('{{labelTemp}}', !empty($this->labelUp) ? $this->labelUp : '%s {{label}}', $template);
+        $template = str_replace('{{label}}', $this->withLabel ? $this->fieldLabelTemplate() : '', $template);
+        $template = str_replace('{{helpBlock}}', $this->helpBlock != '' ? $this->helpBlock : '', $template);
         return $template;
     }
 }

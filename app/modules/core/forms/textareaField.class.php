@@ -33,15 +33,4 @@ class TextareaField extends BaseField
             $this->fieldAttributeValue(),
         );
     }
-
-    public function FieldTemplate(): string
-    {
-        $template = file_get_contents(FILES . 'template' . DS . 'base' . DS . 'forms' . DS . 'inputfieldTemplate.php');
-        $template = str_replace('{{classwrapper}}', $this->FieldwrapperClass ?? '', $template);
-        $template = str_replace('{{feedback}}', $this->errors(), $template);
-        $template = str_replace('{{labelTemp}}', !empty($this->labelUp) ? $this->labelUp : '%s {{label}}', $template);
-        $template = str_replace('{{label}}', $this->withLabel ? $this->fieldLabelTemplate() : '', $template);
-
-        return $template;
-    }
 }

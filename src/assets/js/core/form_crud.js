@@ -183,9 +183,9 @@ export function select2AjaxParams(data) {
   return {
     url: BASE_URL + data.url,
     type: "post",
-    delay: 250,
     processData: false,
     contentType: false,
+    delay: 250,
     dataType: "json",
     data: function (params) {
       formData.append("searchTerm", params.term);
@@ -196,11 +196,6 @@ export function select2AjaxParams(data) {
         return {
           results: $.map(response.msg, function (obj) {
             return { id: obj.id, text: obj.text };
-            // if (obj.id != 0) {
-            //   return { id: obj.id, text: obj.text };
-            // } else {
-            //   return { id: obj.id, text: obj.text };
-            // }
           }),
         };
       }

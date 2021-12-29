@@ -3,6 +3,7 @@ import select2 from "corejs/select2_manager";
 class Shipping {
   constructor(element) {
     this.element = element;
+    this.selectTag = ["sh_name"];
   }
   _init = () => {
     this._setupVariables();
@@ -11,33 +12,34 @@ class Shipping {
   _setupVariables = () => {
     this.wrapper = this.element.find(".card");
     this.modalbox = this.element.find("#modal-box");
-    this.modalform = this.element.find("#modal-box #add-shipping-frm");
+    this.modalform = this.element.find("#shipping-frm");
   };
   _setupEvents = () => {
     var phpPlugin = this;
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
+
     /**
-     * Init Crud operations
-     * =======================================================================
+     * Init Crud Operations
+     * ==========================================================================
      */
     let cruds = new Cruds({
       table: "shipping_class",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      select_tag: ".sh_name",
-      bsmodal: document.getElementById("modal-box"),
+      select_tag: phpPlugin.selectTag,
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_shippingClass_page",
     });
 
     /**
-     * Display all items & init select tag
+     * Display all items
      * =======================================================================
      *
      */
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
     });
 
@@ -45,62 +47,81 @@ class Shipping {
      * Select2 Tag init
      * =======================================================================
      */
-    new select2()._init({
-      element: phpPlugin.modalform.find(".sh_name"),
+    const select = new select2();
+    select._init({
+      element: phpPlugin.modalform.find("#sh_name"),
       tbl_options: "shipping_class",
       placeholder: "Please select a shipping class",
-      url: "forms/showDetails",
+      url: "showDetails",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
 
     /**
-     * set create/add function
-     * =======================================================================
+     * Add or Update Ware House
+     * ======================================================================
      */
-    cruds._set_addBtn();
+    phpPlugin.modalbox.on("submit", "#shipping-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        select: phpPlugin.selectTag,
+        data_type: "values",
+        // model_method: "get_Products",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+      });
+    });
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
+    });
+
     /**
-     * set create/add function
+     * Edit form
      * =======================================================================
      */
-    cruds._add_update({
-      frm_name: "add-shipping-frm",
-      datatable: true,
-      swal: true,
-      modal: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page", // page csrf name
-      select: ["sh_name"],
-      data_type: "values",
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "shcID",
+          "sh_name",
+          "sh_descr",
+          "status",
+          "price",
+          "created_at",
+          "updated_at",
+        ],
+        tbl_options: ["shipping_class"],
+        table: "shipping_class",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
     });
     /**
-     * Edit
-     * =======================================================================
+     * Clean Form and server
+     * =====================================================================
      */
-    cruds._edit({
-      tbl_options: "shipping_class",
-      table: "shipping_class",
-      std_fields: [
-        "shcID",
-        "sh_name",
-        "sh_descr",
-        "status",
-        "price",
-        "created_at",
-        "updated_at",
-      ],
+    cruds._clean_form({
+      select: phpPlugin.selectTag,
+      inputHidden: ["operation", "shcID", "created_at", "updated_at"],
     });
-    //clean form
-    cruds._clean_form();
-    //delete items
+    /**
+     * Delete
+     * =====================================================================
+     */
     cruds._delete({
       swal: true,
       datatable: true,
-      url_check: "forms/checkdelete",
+      url_check: "checkdelete",
       delete_frm_class: ".delete-shipping-class",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
+      frm: true,
     });
     //Activate item
     cruds._active_inactive_elmt({ table: "shipping_class" });

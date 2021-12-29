@@ -52,6 +52,9 @@ class FormsController extends Controller
                 $data['method'] = !isset($data['method']) ? 'showDetails' : $data['method'];
                 $output = FH::getShowAllData($model, $data);
                 if ($output) {
+                    if (isset($output['r']) && $output['r'] == 'empty') {
+                        $output = [];
+                    }
                     $this->jsonResponse(['result' => 'success', 'msg' => $output]);
                 } else {
                     $this->jsonResponse(['result' => 'error', 'msg' => FH::showMessage('warning', 'erreur serveur!')]);
@@ -72,7 +75,7 @@ class FormsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class)->assign($data)->softDelete(true)->setselect2Data($data)->current_ctrl_method('add');
-                method_exists('Form_rules', strtolower($table)) ? $model->validator($data, Form_rules::$table()) : '';
+                method_exists('Form_rules', strtolower($table)) ? $model->validator(H::getObjectProperties($model), Form_rules::$table()) : '';
                 if ($model->validationPasses()) {
                     $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : '';
                     $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model);

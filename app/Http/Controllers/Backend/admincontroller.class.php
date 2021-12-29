@@ -90,7 +90,14 @@ class AdminController extends Controller
         $this->view_instance->set_viewData($this->container->make(CategoriesManager::class)->getAllItem(['return_mode' => 'class'])->get_results());
         $this->view_instance->set_pageTitle('AllProducts');
         $this->view_instance->dragAndDrop = file_get_contents(FILES . 'template' . DS . 'base' . DS . 'dragandDropTemplate.php');
-        $this->view_instance->render('admin' . DS . 'products' . DS . 'allproducts');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'products' . DS . 'allproducts', ['params'=>$this->response->frm_params('new-product-frm', [
+            'operation'=> ['id'=>'operation'],
+            'pdtID'=>['id'=>'pdtID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     // Product Details
@@ -156,7 +163,13 @@ class AdminController extends Controller
     public function shippingClassPage()
     {
         $this->view_instance->set_pageTitle('Shipping Classes');
-        $this->view_instance->render('admin' . DS . 'shipping' . DS . 'shippingclass');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'shipping' . DS . 'shippingclass', ['params'=>$this->response->frm_params('shipping-frm', [
+            'operation'=> ['id'=>'operation'],
+            'shcID'=>['id'=>'shcID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+        ])]);
     }
 
     public function alltaxesPage()

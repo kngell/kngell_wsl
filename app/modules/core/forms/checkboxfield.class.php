@@ -3,17 +3,15 @@
 declare(strict_types=1);
 class CheckBoxField extends BaseField
 {
-    public string $checkedField;
-
     public function setType() : self
     {
         $this->type = self::TYPE_CHECKBOX;
         return $this;
     }
 
-    public function checkedField(string $chf)
+    public function ckecked()
     {
-        $this->checkedField = $chf;
+        $this->_ckecked = 'checked';
 
         return $this;
     }
@@ -29,7 +27,7 @@ class CheckBoxField extends BaseField
             $this->hasErrors(),
             !empty($this->fieldID) ? $this->fieldID : $this->attribute,
             $this->customAttribute,
-            $this->checked()
+            $this->_checked
         );
     }
 
@@ -45,12 +43,10 @@ class CheckBoxField extends BaseField
         return $template;
     }
 
-    public function checked() : string
+    public function checked() : self
     {
-        if (isset($this->model) && isset($this->checkedField)) {
-            return $this->model->{$this->checkedField} == 'on' ? 'checked' : '';
-        }
+        $this->_checked = 'checked';
 
-        return '';
+        return $this;
     }
 }

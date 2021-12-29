@@ -31,12 +31,18 @@ abstract class AbstractModel implements ModelInterface
     {
         $search = strtolower($params['searchTerm']);
         $where = isset($params['parentID']) && $params['parentID'] != '' ? [$params['parentElt'] => $params['parentID']] : [];
-        $data = $where ? $this->getAllItem(['where' => $where, 'return_mode' => 'class'])->get_results() : $this->getAllItem(['return_mode' => 'class'])->get_results();
+        $data = !empty($where) ? $this->getAllItem(['where' => $where, 'return_mode' => 'class'])->get_results() : $this->getAllItem(['return_mode' => 'class'])->get_results();
         $colTitle = $this->get_colTitle();
-        $output = array_filter($data, function ($item) use ($search, $colTitle) {
-            return str_starts_with(strtolower($item->$colTitle), $search);
-        });
-
+        if ($search == 'undefined') {
+            $output = $data;
+        } else {
+            $output = array_filter($data, function ($item) use ($search, $colTitle) {
+                return str_starts_with(strtolower($item->$colTitle), $search);
+            });
+            if (empty($output)) {
+                return ['r'=>'empty'];
+            }
+        }
         return array_map(
             function ($group) use ($colTitle) {
                 $colID = $group->get_colID();
@@ -60,7 +66,8 @@ abstract class AbstractModel implements ModelInterface
             foreach ($this->select2_field as $select2) {
                 $select2_data = isset($params[$select2]) ? json_decode($this->htmlDecode($params[$select2]), true) : [];
                 if ($select2_data && $select2_data[0]) {
-                    $this->$select2 = $select2_data[0][$field];
+                    $this->$select2 = trim($select2_data[0][$field]);
+
                     $select2_data = null;
                 }
             }
@@ -151,9 +158,10 @@ abstract class AbstractModel implements ModelInterface
 
     public function media_prop_adjust() : self
     {
-        if (isset($this->_media_img) && $this->_media_img != 'p_media') {
-            $this->p_media = $this->{$this->_media_img};
-            unset($this->{$this->_media_img});
+        $media = $this->get_media();
+        if ($media != '' && $this->_media_img != 'p_media') {
+            $this->p_media = $this->$media;
+            unset($this->$media);
         }
         return $this;
     }
@@ -397,12 +405,14 @@ abstract class AbstractModel implements ModelInterface
         $selected_option = null;
         if (isset($this->parentID) && $m->get_modeName() == $this->get_modeName()) {
             $selected_option = $m->getDetails($this->parentID);
+        } elseif ($m->get_modeName() == $this->get_modeName()) {
+            $selected_option = $m->getDetails($this->{$this->get_colID()});
         } else {
             $selected_option = $this->{$m->colOptions} != null ? $m->getDetails($this->{$m->colOptions}) : null;
         }
         if ($selected_option != null && $selected_option->count() === 1) {
             $selected_option = current($selected_option->get_results());
-            $response[$selected_option->{$m->get_colID()}] = !empty($colTile) ? $this->htmlDecode($selected_option->$colTitle) : $this->get_customTitle($this);
+            $response[$selected_option->{$m->get_colID()}] = !empty($colTitle) ? $this->htmlDecode($selected_option->$colTitle) : $this->get_customTitle($this);
         }
 
         return $response;

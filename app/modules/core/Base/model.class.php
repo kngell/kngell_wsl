@@ -266,11 +266,10 @@ class Model extends AbstractModel
     //Get selected options
     public function get_Options($selected_optons = [], $m = null)
     {
-        $all_options = $m->getAllItem(['return_mode' => 'class'])->get_results();
         if (!$selected_optons) {
             return [];
         }
-
+        $all_options = $m->getAllItem(['return_mode' => 'class'])->get_results();
         return  [array_map(
             function ($option) use ($m) {
                 $colID = $option->get_colID();
