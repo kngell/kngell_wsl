@@ -4,6 +4,7 @@ import input from "corejs/inputErrManager";
 import Swal from "sweetalert2";
 import OP from "corejs/operator";
 import { htmlspecialchars_decode } from "corejs/html_decode";
+import { find } from "lodash";
 export default class Cruds {
   constructor(data) {
     this.table = data.table;
@@ -114,13 +115,16 @@ export default class Cruds {
     params.hasOwnProperty("imageUrlsAry")
       ? (data.imageUrlsAry = params.imageUrlsAry)
       : "";
-    params.hasOwnProperty("select")
-      ? (data.select2 = plugin._get_select2_data(params.select))
+    plugin.hasOwnProperty("select")
+      ? (data.select2 = plugin._get_select2_data(plugin.select))
       : "";
     params.hasOwnProperty("categorie")
       ? (data.categories = plugin._get_selected_categories(params.categorie))
       : "";
     params.hasOwnProperty("folder") ? (data.folder = params.folder) : "";
+    params.hasOwnProperty("validator_rules")
+      ? (data.validator_rules = params.validator_rules)
+      : "";
     switch (plugin.form.find("#operation").val()) {
       case "add":
       case "update":
@@ -163,9 +167,15 @@ export default class Cruds {
                   } = params;
                   plugin._displayAll(dysplayparams);
                 }
-                // else {
-                //   location.reload();
-                // }
+                if (plugin.table == "users") {
+                  if (plugin.hasOwnProperty("tag")) {
+                    plugin.tag
+                      .parents(".card-footer")
+                      .siblings(".card-body")
+                      .find(".img-wrapper img")
+                      .attr("src", response.url);
+                  }
+                }
               });
             }
           }
@@ -245,7 +255,7 @@ export default class Cruds {
    * @param {*} params
    */
   _edit = (params) => {
-    const plugin = this;
+    let plugin = this;
     var data = {
       url: "edit",
       frm: params.frm,
@@ -257,6 +267,7 @@ export default class Cruds {
     const ajax_params = plugin._clean_params(params);
     Call_controller({ ...data, ...ajax_params }, (response, std_fields) => {
       if (response.result === "success") {
+        params.hasOwnProperty("tag") ? (plugin.tag = params.tag) : "";
         $(std_fields).each(function (i, field) {
           switch (true) {
             case plugin.ck_content != "" && plugin.ck_content.includes(this):
@@ -382,6 +393,9 @@ export default class Cruds {
         csrftoken: this.csrftoken,
         method: params.hasOwnProperty("method") ? params.method : "",
         folder: params.hasOwnProperty("folder") ? params.folder : "",
+        del_method: params.hasOwnProperty("del_method")
+          ? params.del_method
+          : "",
       };
     } else {
       result =
@@ -393,6 +407,9 @@ export default class Cruds {
           id: id ? id : "",
           method: params.hasOwnProperty("method") ? params.method : "",
           folder: params.hasOwnProperty("folder") ? params.folder : "",
+          del_method: params.hasOwnProperty("del_method")
+            ? params.del_method
+            : "",
         });
     }
     return result;
@@ -439,7 +456,6 @@ export default class Cruds {
     let plugin = this;
     plugin.wrapper.on("submit", params.restore_frm_class, function (e) {
       e.preventDefault();
-      console.log($(this).attr("id"), params.resto_class);
       var data = {
         url: "delete",
         swal: Swal,

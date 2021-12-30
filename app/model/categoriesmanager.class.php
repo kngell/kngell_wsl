@@ -8,6 +8,7 @@ class CategoriesManager extends Model
     protected string $_colIndex = 'parentID';
     protected string $_table = 'categories';
     protected array $checkboxes = ['status'];
+    protected array  $select2_field = ['parentID', 'brID'];
 
     //=======================================================================
     //Construct

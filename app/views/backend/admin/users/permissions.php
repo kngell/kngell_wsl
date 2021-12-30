@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 $this->start('head'); ?>
 <!-------Costum-------->
-<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_product_page')?>" />
+<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_permission_page')?>" />
 <link href="<?= $this->asset('css/custom/backend/admin/users/permissions', 'css') ?? ''?>" rel="stylesheet"
     type="text/css">
 <?php $this->end(); ?>
@@ -48,53 +48,22 @@ $this->start('head'); ?>
             </div>
         </div>
     </div>
-</div>
-<!----------Add new categorie Modal-------->
-<div class="modal fade" role="dialog" id="modal-box">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"> Add new</h5>
-                <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="#" method="post" id="groups-and-permissions-frm" class="px-3 needs-validation">
-                    <?= FH::csrfInput('csrftoken', $this->token->generate_token(8, 'groups-and-permissions-frm')); ?>
-                    <input type="hidden" name="operation" id="operation">
-                    <input type="hidden" name="grID" id="grID">
-                    <input type="hidden" name="date_enreg" id="date_enreg">
-                    <input type="hidden" name="updateAt" id="updateAt">
-                    <input type="hidden" name="deleted" id="deleted">
-                    <div id="alertErr"></div>
-                    <div class="form-group">
-                        <input type="text" name="name" id="name" class="form-control " placeholder="Group name">
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    <div class="form-group">
-                        <textarea name="description" id="description" class="form-control ck-content"
-                            placeholder="Group description..."></textarea>
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="status" name="status" value="1">
-                        <label for="status" class="form-check-label">Active</label>
-                    </div>
-                    <div class="form-group select-box">
-                        <select class="form-select select_group alert" id="parentID" name="parentID"
-                            aria-label="size 3 select example">
-                            <option value="0"></option>
-                        </select>
-                        <span class="custom-arrow"></span>
-                    </div>
-                    <div class="form-group justify-content-between">
-                        <input type="submit" name="submitBtn" id="submitBtn" value="Enregistrer" class="button">
-                    </div>
-                </form>
+
+    <!----------Add new categorie Modal-------->
+    <div class="modal fade" role="dialog" id="modal-box">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"> Add new</h5>
+                    <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <?php require_once 'partials/_user_permissions_frm.php'?>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 <?php $this->end(); ?>
 <?php $this->start('footer') ?>
 <!----------custom--------->

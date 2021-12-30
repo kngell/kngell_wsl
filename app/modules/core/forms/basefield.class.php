@@ -33,6 +33,7 @@ abstract class BaseField implements FieldInterface
     protected string $options = '';
     protected string $_checked = '';
     protected string $icon = '';
+    protected string $multiple = '';
 
     protected Model $model;
 
@@ -167,6 +168,12 @@ abstract class BaseField implements FieldInterface
             $this->customAttribute .= $key . ' = "' . $attr . '" ';
         }
 
+        return $this;
+    }
+
+    public function multiple() : self
+    {
+        $this->multiple = 'multiple aria-label="multiple"';
         return $this;
     }
 

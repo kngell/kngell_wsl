@@ -108,17 +108,19 @@ class Form
     {
         $button = '';
         $submitType = 'button';
+
         for ($i = 0; $i < $nb_Btn; $i++) {
-            if ($i > 0) {
+            if ($i == $nb_Btn - 1) {
                 $submitType = 'submit';
             }
-            if ($nb_Btn === 1) {
-                $text = empty($text) ? 'Submit' : $text;
+            $btnText = '';
+            if ($i > 0) {
+                $btnText = $text == '' ? 'Submit' : $text;
             } else {
-                $text = $i == 0 ? 'Cancel' : 'Submit';
+                $btnText = $i == 0 ? 'Cancel' : 'Submit';
             }
             $id = empty($this->btnID) ? 'submitBtn' . $i : $this->btnID;
-            $button .= '<div class="action"><button type="' . $submitType . '" name="submitBtn" id="' . $id . '" class="button">' . $text . '</button></div>';
+            $button .= '<div class="action"><button type="' . $submitType . '" name="submitBtn" id="' . $id . '" class="button">' . $btnText . '</button></div>';
         }
 
         return '<div class="mb-3 btn-group">' . $button . '</div>';

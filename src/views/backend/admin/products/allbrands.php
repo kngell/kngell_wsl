@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 $this->start('head'); ?>
 <!-------Costum-------->
-<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_product_page')?>" />
+<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_brand_page')?>" />
 <link href="<?= $this->asset('css/custom/backend/admin/products/brands', 'css') ?? ''?>" rel="stylesheet"
     type="text/css">
 <?php $this->end(); ?>
@@ -62,33 +62,7 @@ $this->start('head'); ?>
                     <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="#" method="post" id="brands-frm" class="px-3 needs-validation" novalidate
-                        enctype="multipart/form-data">
-                        <?= FH::csrfInput('csrftoken', $this->token->generate_token(8, 'brands-frm')); ?>
-                        <input type="hidden" name="operation" id="operation">
-                        <input type="hidden" name="brID" id="brID">
-                        <input type="hidden" name="created_at" id="created_at">
-                        <input type="hidden" name="updated_at" id="updated_at">
-                        <input type="hidden" name="deleted" id="deleted">
-                        <div id="alertErr"></div>
-                        <div class="mb-3">
-                            <input type="text" name="br_name" id="br_name" class="form-control "
-                                placeholder="Brand Name" aria-describedby="brands-feedback">
-                            <div class="invalid-feedback" id="brands-feedback"></div>
-                        </div>
-                        <div class="mb-3">
-                            <textarea name="br_descr" id="br_descr" class="form-control ck-content"
-                                placeholder="Description..." aria-describedby="br_descr-feedback"></textarea>
-                            <div class="invalid-feedback" id="br_descr-feedback"></div>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="status" name="status" value="on">
-                            <label for="status" class="form-check-label">Active</label>
-                        </div>
-                        <div class="mb-3 justify-content-between">
-                            <input type="submit" name="submitBtn" id="submitBtn" value="Submit" class="button">
-                        </div>
-                    </form>
+                    <?php require_once 'partials/_brand_frm.php'; ?>
                 </div>
             </div>
         </div>

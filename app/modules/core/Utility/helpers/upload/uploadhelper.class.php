@@ -253,6 +253,15 @@ class UploadHelper
         }));
     }
 
+    public function get_uploadedUrl(Model $m) : string
+    {
+        $mediaKey = self::get_mediaKey($m);
+        if (isset($m->$mediaKey)) {
+            return ImageManager::asset_img(unserialize($m->$mediaKey)[0]);
+        }
+        return ImageManager::asset_img('users' . DS . 'avatar.png');
+    }
+
     public function manage_uploadImage(Model $model, $data, Request $request, container $container)
     {
         $errors = [];

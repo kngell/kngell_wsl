@@ -3,6 +3,7 @@ import select2 from "corejs/select2_manager";
 class AllUnits {
   constructor(element) {
     this.element = element;
+    this.selectTag = ["unit"];
   }
   _init = () => {
     this._setupVariables();
@@ -11,84 +12,119 @@ class AllUnits {
   _setupVariables = () => {
     this.wrapper = this.element.find(".card");
     this.modalbox = this.element.find("#modal-box");
-    this.modalform = this.element.find("#modal-box #add-units-frm");
+    this.modalform = this.element.find("#units-frm");
   };
   _setupEvents = () => {
     var phpPlugin = this;
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     /**
-     * Init Crud operations
-     * =======================================================================
+     * Init Crud Operations
+     * ==========================================================================
      */
     let cruds = new Cruds({
       table: "units",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      select_tag: ".unit",
-      bsmodal: document.getElementById("modal-box"),
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_unit_page",
+      select_tag: phpPlugin.selectTag,
     });
-    //=======================================================================
-    //Display all items & init select tag
-    //=======================================================================
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
+
+    /**
+     * Display All Items
+     * ==========================================================================
+     */
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
     });
-    //Select2 ajax
-    new select2()._init({
+
+    /**
+     * Select 2 Unit initialization
+     * ====================================================================
+     */
+    let myselect2 = new select2();
+    myselect2._init({
+      url: "showDetails",
       element: phpPlugin.modalform.find(".unit"),
       tbl_options: "units",
       placeholder: "Please select a unit",
-      url: "showDetails",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
 
-    //set create/add function
-    cruds._set_addBtn();
     /**
      * Add or Update
      * =======================================================================
      */
-    cruds._add_update({
-      frm_name: "add-units-frm",
-      datatable: true,
-      swal: true,
-      modal: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page", // page csrf name
-      select: ["unit"],
-      data_type: "values",
+    phpPlugin.modalbox.on("submit", "#units-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        data_type: "values",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+      });
     });
-    //edit
-    cruds._edit({
-      tbl_options: "units",
-      table: "units",
-      std_fields: [
-        "unID",
-        "unit",
-        "created_at",
-        "updated_at",
-        "descr",
-        "status",
-      ],
+
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
     });
-    //clean form
-    cruds._clean_form();
-    //delete items
+
+    /**
+     * Edit form
+     * =======================================================================
+     */
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "unID",
+          "unit",
+          "created_at",
+          "updated_at",
+          "descr",
+          "status",
+        ],
+        tbl_options: "units",
+        table: "units",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
+    });
+    /**
+     * Clean Form and server
+     * =====================================================================
+     */
+    cruds._clean_form({
+      select: phpPlugin.selectTag,
+      inputHidden: ["unID", "created_at", "updated_at", "deleted", "operation"],
+    });
+
+    /**
+     * Delete
+     * =====================================================================
+     */
     cruds._delete({
       swal: true,
       datatable: true,
       url_check: "checkdelete",
       delete_frm_class: ".delete-unit-status",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
+      frm: true,
     });
-    //Activate item
+
+    /**
+     * Manage Status
+     * ====================================================================
+     */
     cruds._active_inactive_elmt({ table: "units" });
   };
 }

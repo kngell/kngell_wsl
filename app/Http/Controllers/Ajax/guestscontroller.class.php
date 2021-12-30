@@ -3,7 +3,7 @@
 declare(strict_types=1);
 class GuestsController extends Controller
 {
-    public function __construct()
+    public function __construct(private UploadHelper $uploadHelper)
     {
     }
 
@@ -43,7 +43,7 @@ class GuestsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class);
-                $file = H_upload::upload_files($this->request->getFiles(), $model, $this->container);
+                $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model, $this->container);
                 if ($file['success']) {
                     $model->assign($data);
                     method_exists('Form_rules', $table) ? $model->validator($data, Form_rules::$table()) : '';

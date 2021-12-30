@@ -39,13 +39,28 @@ class AdminController extends Controller
     public function allcategoriesPage()
     {
         $this->view_instance->set_pageTitle('Manage Categories');
-        $this->view_instance->render('admin' . DS . 'products' . DS . 'allcategories');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'products' . DS . 'allcategories', ['params'=>$this->response->frm_params('categorie-frm', [
+            'operation'=> ['id'=>'operation'],
+            'catID'=>['id'=>'catID'],
+            'date_enreg'=>['id'=>'date_enreg'],
+            'updateAt'=>['id'=>'updateAt'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     // Units Management
     public function allunitsPage()
     {
         $this->view_instance->set_pageTitle('Units');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'products' . DS . 'allunits', ['params'=>$this->response->frm_params('units-frm', [
+            'operation'=> ['id'=>'operation'],
+            'unID'=>['id'=>'unID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
         $this->view_instance->render('admin' . DS . 'products' . DS . 'allunits');
     }
 
@@ -60,14 +75,21 @@ class AdminController extends Controller
     {
         // dd(($this->get_model('UsersManager'))->get_Tables_Column('users'));
         $profile_upload = file_get_contents(FILES . 'template' . DS . 'base' . DS . 'upload_profile_template.php');
-        $profile_upload = str_replace('{{form_id}}', 'add-user-frm', $profile_upload);
+        $profile_upload = str_replace('{{form_id}}', 'user-frm', $profile_upload);
         $profile_upload = str_replace('{{camera}}', IMG . 'camera' . DS . 'camera-solid.svg', $profile_upload);
         $profile_upload = str_replace('{{avatar}}', IMG . 'users' . DS . 'avatar.png', $profile_upload);
         $this->view_instance->profile_upload = $profile_upload;
         $this->view_instance->set_viewData($this->container->make(UsersManager::class));
         $this->view_instance->user_method = array_pop($method);
         $this->view_instance->set_pageTitle('All Users');
-        $this->view_instance->render('admin' . DS . 'users' . DS . 'allusers');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'users' . DS . 'allusers', ['params'=>$this->response->frm_params('user-frm', [
+            'userID'=> ['id'=>'userID'],
+            'operation'=>['id'=>'operation'],
+            'date_enreg'=>['id'=>'date_enreg'],
+            'updateAt'=>['id'=>'updateAt'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     //users profile
@@ -81,7 +103,14 @@ class AdminController extends Controller
     public function permissionsPage()
     {
         $this->view_instance->set_pageTitle('permissions');
-        $this->view_instance->render('admin' . DS . 'users' . DS . 'permissions');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'users' . DS . 'permissions', ['params'=>$this->response->frm_params('groups-and-permissions-frm', [
+            'operation'=> ['id'=>'operation'],
+            'grID'=>['id'=>'grID'],
+            'date_enreg'=>['id'=>'date_enreg'],
+            'updateAt'=>['id'=>'updateAt'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     // All product
@@ -147,9 +176,15 @@ class AdminController extends Controller
     //Manage Companies
     public function allbrandsPage()
     {
-        // dd(($this->get_model('UsersManager'))->get_Tables_Columns('address_book'));
         $this->view_instance->set_pageTitle('All Brands');
-        $this->view_instance->render('admin' . DS . 'products' . DS . 'allbrands');
+        $this->view_instance->frm = $this->container->make(Form::class);
+        $this->view_instance->render('admin' . DS . 'products' . DS . 'allbrands', ['params'=>$this->response->frm_params('brands-frm', [
+            'operation'=> ['id'=>'operation'],
+            'brID'=>['id'=>'brID'],
+            'created_at'=>['id'=>'created_at'],
+            'updated_at'=>['id'=>'updated_at'],
+            'deleted'=>['id'=>'deleted'],
+        ])]);
     }
 
     //Companny details

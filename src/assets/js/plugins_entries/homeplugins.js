@@ -66,10 +66,10 @@ class HomePlugin {
       frm_name: "all_product_page",
     });
 
-    window.onbeforeunload = function () {
-      websocket.onclose = function () {}; // disable onclose handler first
-      websocket.close();
-    };
+    // window.onbeforeunload = function () {
+    //   websocket.onclose = function () {}; // disable onclose handler first
+    //   websocket.close();
+    // };
   };
 }
 document.addEventListener("DOMContentLoaded", function () {

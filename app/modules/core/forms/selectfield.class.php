@@ -31,12 +31,13 @@ class SelectField extends BaseField
     public function renderField(): string
     {
         return sprintf(
-            '<select name="%s" class="form-select %s %s" id="%s" autocomplete="nope" placeholder=" " %s>%s</select>',
+            '<select name="%s" class="form-select %s %s" id="%s" autocomplete="nope" placeholder=" " %s %s>%s</select>',
             $this->attribute,
             isset($this->fieldclass) ? $this->fieldclass . ' ' . $this->attribute : $this->attribute,
             $this->hasErrors(),
             $this->fieldID ?? $this->attribute,
             $this->customAttribute,
+            $this->multiple,
             $this->options
         );
     }

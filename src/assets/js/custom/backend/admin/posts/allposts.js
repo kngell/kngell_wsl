@@ -45,6 +45,7 @@ class AllPosts {
       frm_name: "all_posts_page",
       ck_content: phpPlugin.editorContent,
       loader: loader,
+      select_tag: phpPlugin.selectTag,
     });
     /**
      * Select 2 Categories initialization
@@ -73,7 +74,6 @@ class AllPosts {
      * Display All Items
      * ==========================================================================
      */
-
     cruds._displayAll({
       datatable: true,
       data_type: "values",
@@ -93,7 +93,6 @@ class AllPosts {
         modal: true,
         categorie: phpPlugin.modalbox.find(".categorie"),
         media: phpPlugin.modalbox.find("#p_media"),
-        select: phpPlugin.selectTag,
         data_type: "values",
         // model_method: "get_Products",
         frm: $(this),

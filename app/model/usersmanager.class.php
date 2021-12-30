@@ -7,6 +7,7 @@ class UsersManager extends Model
     protected string $_table = 'users';
     protected string $_colIndex = 'userID';
     protected string $deleted;
+    protected array  $select2_field = ['group'];
 
     //=======================================================================
     //construct
@@ -168,21 +169,26 @@ class UsersManager extends Model
 
     public function beforeDelete($params = [])
     {
-        if (isset($params['method'])) {
-            switch ($params['method']) {
+        if (isset($params['del_method'])) {
+            switch ($params['del_method']) {
                 case 'delete_user':
-                    $this->set_SoftDelete(false);
+                    if (isset($params['user-method']) && $params['user-method'] == 'get_allUsers') {
+                        $this->softDelete(true);
+                    } elseif (isset($params['user-method']) && $params['user-method'] == 'get_deletedUsers') {
+                        $this->softDelete(false);
+                    }
+
                     break;
                 case 'restore_user':
-                    $this->set_SoftDelete(true);
+                    $this->softDelete(true);
                     $params['restore'] = ['deleted' => 0];
                     break;
                 default:
-                    $this->set_SoftDelete(true);
+                    $this->softDelete(true);
                     break;
             }
         } else {
-            $this->set_SoftDelete(true);
+            $this->softDelete(true);
         }
 
         return $params;
@@ -333,10 +339,10 @@ class UsersManager extends Model
                 return 'Profil mis a jour avec succès!';
                 break;
             case 'delete':
-                if (isset($params['method']) && $params['method'] == 'restore_user') {
+                if (isset($params['del_method']) && $params['del_method'] == 'restore_user') {
                     return 'Utilisateur restauré avec succès!';
                 }
-                if (isset($params['method']) && $params['method'] == 'delete_user') {
+                if (isset($params['del_method']) && $params['del_method'] == 'delete_user') {
                     return 'Utilisateur Supprimé!';
                 } else {
                     return 'message non défini !';

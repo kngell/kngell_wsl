@@ -14,6 +14,7 @@ abstract class AbstractModel implements ModelInterface
 
             return null;
         }
+        return['shcID'=>$this->p_shipping_class];
     }
 
     /**
@@ -61,18 +62,20 @@ abstract class AbstractModel implements ModelInterface
      */
     public function setselect2Data(array $params = []) : self
     {
+        $table = $this->get_tableName();
+        if (in_array($table, ['users'])) { // After save processing
+            return $this;
+        }
         if (isset($this->select2_field)) {
-            $field = in_array($this->get_tableName(), ['products', 'warehouse']) ? 'id' : 'text';
+            $field = in_array($table, ['products', 'warehouse', 'groups', 'categories']) ? 'id' : 'text';
             foreach ($this->select2_field as $select2) {
                 $select2_data = isset($params[$select2]) ? json_decode($this->htmlDecode($params[$select2]), true) : [];
-                if ($select2_data && $select2_data[0]) {
+                if (isset($select2_data[0])) {
                     $this->$select2 = trim($select2_data[0][$field]);
-
                     $select2_data = null;
                 }
             }
         }
-
         return $this;
     }
 
@@ -97,7 +100,9 @@ abstract class AbstractModel implements ModelInterface
         if (isset($this->fileErr)) {
             unset($this->fileErr);
         }
-
+        if (isset($this->deleted)) {
+            $this->deleted = $this->deleted == '' ? '0' : $this->deleted;
+        }
         return true;
     }
 

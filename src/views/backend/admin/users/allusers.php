@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 $this->start('head'); ?>
 <!-------Costum-------->
-<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_product_page')?>" />
+<meta name="csrftoken" content="<?=$this->token->generate_token(8, 'all_users_page')?>" />
 <link href="<?= $this->asset('css/custom/backend/admin/users/allusers', 'css') ?? ''?>" rel="stylesheet"
     type="text/css">
 <?php $this->end(); ?>
@@ -91,57 +91,18 @@ $this->start('head'); ?>
         </div>
     </div>
     <!-- /.content-wrapper -->
-</div>
-<!----------Add new user-------->
-<div class="modal fade" role="dialog" id="modal-box">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
-                <?=$this->profile_upload?>
-            </div>
-            <div class="modal-body">
-                <form action="#" method="post" id="add-user-frm" class="px-3 needs-validation"
-                    enctype="multipart/form-data">
-                    <?= FH::csrfInput('csrftoken', $this->token->generate_token(8, 'add-user-frm')); ?>
-                    <input type="hidden" name="operation" id="operation">
-                    <input type="hidden" name="userID" id="userID">
-                    <input type="hidden" name="date_enreg" id="date_enreg">
-                    <input type="hidden" name="updateAt" id="updateAt">
-                    <input type="hidden" name="deleted" id="deleted">
-                    <div id="alertErr"></div>
-                    <div class="row g-3">
-                        <div class="col-sm-6 mb-3">
-                            <input type="text" name="firstName" id="firstName" class="form-control "
-                                placeholder="Prénom">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <input type="text" name="lastName" id="lastName" class="form-control " placeholder="Nom">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <input type="text" name="userName" id="userName" class="form-control "
-                                placeholder="Identifiant">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <input type="text" name="email" id="email" class="form-control " placeholder="Email">
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <input type="text" name="phone" id="phone" class="form-control " placeholder="Téléphone">
-                        <div class="invalid-feedback"></div>
-                    </div>
-                    <select class="form-select group" multiple aria-label="multiple" name="group[]" id="group">
-
-                    </select>
-                    <div class="mb-3 text-center">
-                        <input type="submit" name="submitBtn" id="submitBtn" value="Submit" class="button mt-3">
-                    </div>
-                </form>
+    <!----------Add new user-------->
+    <div class="modal fade" role="dialog" id="modal-box">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close text-light" data-bs-dismiss="modal"></button>
+                    <?=$this->profile_upload?>
+                </div>
+                <div class="modal-body">
+                    <?php require_once 'partials/_user_frm.php'?>
+                </div>
             </div>
         </div>
     </div>

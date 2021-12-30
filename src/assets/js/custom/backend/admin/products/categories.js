@@ -3,6 +3,7 @@ import select2 from "corejs/select2_manager";
 class AllCategories {
   constructor(element) {
     this.element = element;
+    this.selectTag = ["parentID", "brID"];
   }
 
   /**
@@ -21,7 +22,7 @@ class AllCategories {
   _setupVariables = () => {
     this.wrapper = this.element.find(".card");
     this.modalbox = this.element.find("#modal-box");
-    this.modalform = this.element.find("#modal-box #Categorie-frm");
+    this.modalform = this.element.find("#categorie-frm");
   };
 
   /**
@@ -31,39 +32,40 @@ class AllCategories {
    */
   _setupEvents = () => {
     var phpPlugin = this;
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
+    /**
+     * Init Crud Operations
+     * ==========================================================================
+     */
     let cruds = new Cruds({
       table: "categories",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      select_tag: ["#parentID", "#brID"],
-      bsmodal: document.getElementById("modal-box"),
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_categories_page",
+      select_tag: phpPlugin.selectTag,
     });
 
     /**
-     * display All items
-     * =======================================================================
+     * Display All Items
+     * ==========================================================================
      */
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
       model_method: "getAllCategories",
     });
-
     /**
-     * Select2 ajax
-     * =======================================================================
-     *
+     * Select 2 Categories initialization
+     * ====================================================================
      */
-    const select = new select2();
-    select._init({
+    const select = new select2()._init({
+      url: "showDetails",
       element: phpPlugin.modalform.find("#parentID"),
       tbl_options: "categories",
-      placeholder: "Please select a parent Categorie",
-      url: "showDetails",
+      placeholder: "Select a parent Categorie",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
@@ -71,54 +73,84 @@ class AllCategories {
     select._init({
       element: phpPlugin.modalform.find("#brID"),
       tbl_options: "brand",
-      placeholder: "Please select a brand",
+      placeholder: "Select a brand",
       url: "showDetails",
       csrftoken: phpPlugin.modalform.find("input[name='csrftoken']").val(),
       frm_name: phpPlugin.modalform.attr("id"),
     });
 
-    //set create/add function
-    cruds._set_addBtn();
-    //Add or update
+    /**
+     * Add or Update
+     * =======================================================================
+     */
+    phpPlugin.modalbox.on("submit", "#categorie-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        data_type: "values",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+        model_method: "getAllCategories",
+      });
+    });
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
+    });
 
-    cruds._add_update({
-      frm_name: "Categorie-frm",
-      datatable: true,
-      swal: true,
-      modal: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page", // page csrf name
-      data_type: "values",
-      model_method: "getAllCategories",
+    /**
+     * Edit form
+     * =======================================================================
+     */
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "catID",
+          "date_enreg",
+          "updateAt",
+          "status",
+          "categorie",
+          "description",
+          "parentID",
+          "brID",
+        ],
+        tbl_options: ["categories", "brand"],
+        table: "categories",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
     });
-    //edit
-    cruds._edit({
-      tbl_options: ["categories", "brand"],
-      table: "categories",
-      std_fields: [
-        "catID",
-        "date_enreg",
-        "updateAt",
-        "status",
-        "categorie",
-        "description",
-        "parentID",
-        "brID",
-      ],
+    /**
+     * Clean Form and server
+     * =====================================================================
+     */
+    cruds._clean_form({
+      select: phpPlugin.selectTag,
+      inputHidden: ["catID", "date_enreg", "updateAt", "deleted", "operation"],
     });
-    //clean form
-    cruds._clean_form();
-    //delete items
+
+    /**
+     * Delete
+     * =====================================================================
+     */
     cruds._delete({
       swal: true,
       datatable: true,
       url_check: "checkdelete",
       delete_frm_class: ".delete-categorie-frm",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
+      frm: true,
     });
-    //Activate item
+
+    /**
+     * Manage Status
+     * ====================================================================
+     */
     cruds._active_inactive_elmt({ table: "categories" });
   };
 }

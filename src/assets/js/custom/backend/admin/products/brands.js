@@ -20,91 +20,101 @@ class Brand {
   };
   _setupEvents = () => {
     var phpPlugin = this;
-
+    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     /**
-     * Init Cruds operations
-     * =======================================================================
+     * Init Crud Operations
+     * ==========================================================================
      */
     let cruds = new Cruds({
       table: "brand",
       wrapper: phpPlugin.wrapper,
       form: phpPlugin.modalform,
       modal: phpPlugin.modalbox,
-      bsmodal: document.getElementById("modal-box"),
+      bsmodal: "modal-box",
+      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
+      frm_name: "all_brand_page",
+      select_tag: phpPlugin.selectTag,
     });
+
     /**
-     * display all Items
-     * =======================================================================
+     * Display All Items
+     * ==========================================================================
      */
-    const csrftoken = document.querySelector('meta[name="csrftoken"]');
     cruds._displayAll({
       datatable: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
     });
 
     /**
-     * Set / Create Add Btn
+     * Add or Update
      * =======================================================================
      */
-    cruds._set_addBtn();
-
-    /**
-     * Add or update Data
-     * =======================================================================
-     *
-     */
-    cruds._add_update({
-      frm_name: "brands-frm",
-      datatable: true,
-      swal: true,
-      modal: true,
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page", // page csrf name
-      data_type: "values",
+    phpPlugin.modalbox.on("submit", "#brands-frm", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#submitBtn").val("Please wait...");
+      cruds._add_update({
+        datatable: true,
+        swal: true,
+        modal: true,
+        data_type: "values",
+        frm: $(this),
+        frm_name: $(this).attr("id"),
+      });
+    });
+    phpPlugin.wrapper.find("#addNew").on("click", function () {
+      phpPlugin.modalform.find("#operation").val("add");
     });
 
     /**
-     * Edit Data
+     * Edit form
      * =======================================================================
-     *
      */
-    cruds._edit({
-      table: "brand",
-      std_fields: [
-        "brID",
-        "br_name",
-        "br_descr",
-        "status",
-        "updated_at",
-        "created_at",
-        "deleted",
-      ],
+    phpPlugin.wrapper.on("click", ".editBtn", function (e) {
+      e.preventDefault();
+      phpPlugin.modalform.find("#operation").val("update");
+      cruds._edit({
+        std_fields: [
+          "brID",
+          "br_name",
+          "br_descr",
+          "status",
+          "updated_at",
+          "created_at",
+          "deleted",
+        ],
+        table: "brand",
+        frm: $(this).parents("form").length != 0 ? $(this).parents("form") : "",
+        frm_name: $(this).parents("form").attr("id"),
+        tag: $(this),
+      });
     });
 
     /**
-     * Clean Forms
-     * =======================================================================
+     * Clean Form and server
+     * =====================================================================
      */
-    cruds._clean_form({});
+    cruds._clean_form({
+      select: phpPlugin.selectTag,
+      inputHidden: ["operation", "brID", "created_at", "updated_at", "deleted"],
+    });
 
     /**
-     * Delete data
-     * =======================================================================
+     * Delete
+     * =====================================================================
      */
     cruds._delete({
       swal: true,
       datatable: true,
       url_check: "checkdelete",
       delete_frm_class: ".delete-brand-frm",
-      csrftoken: csrftoken ? csrftoken.getAttribute("content") : "",
-      frm_name: "all_product_page",
       data_type: "values",
+      frm: true,
     });
-    //=======================================================================
-    //Categorie Status
-    //=======================================================================
+
+    /**
+     * Manage Status
+     * =================================================================
+     */
     cruds._active_inactive_elmt({ table: "brand" });
   };
 }

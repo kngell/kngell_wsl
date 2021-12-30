@@ -166,8 +166,8 @@ class Model extends AbstractModel
     {
         $data = array_merge(['where' => [$this->get_colIndex() => $index_value]], ['return_mode' => 'class'], ['class' => get_class($this)], $tables);
         $results = $this->repository->findBy([], [], [], $data);
-        $this->_results = $results != -1 ? $results->get_results() : null;
-        $this->_count = $results != -1 ? $results->count() : 0;
+        $this->_results = $results->count() > 0 ? $results->get_results() : null;
+        $this->_count = $results->count() > 0 ? $results->count() : 0;
         $results = null;
 
         return $this;
@@ -295,7 +295,11 @@ class Model extends AbstractModel
     //check empty parent items, categories, brands, groups etc...
     public function check_forEmptyParent($parentID = '')
     {
-        $childItems = property_exists($this, '_colIndex') ? $this->getAllbyIndex($parentID) : null;
+        $colIndex = $this->get_colIndex();
+        if ($colIndex == $this->get_colID()) {
+            return '';
+        }
+        $childItems = property_exists($this, $colIndex) ? $this->getAllbyIndex($parentID) : null;
         // $otherlink = $this->search_relatedLinks($parentID, $this->get_tableName(), $this->get_colID());
         $output = '';
         if (isset($childItems) && $childItems->count() > 0) {

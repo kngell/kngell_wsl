@@ -97,6 +97,9 @@ import "views/backend/admin/calendar.php";
 import "views/backend/admin/products/allcategories.php";
 import "views/backend/admin/products/allproducts.php";
 import "views/backend/admin/products/partials/_product_frm.php";
+import "views/backend/admin/products/partials/_unit_frm.php";
+import "views/backend/admin/products/partials/_brand_frm.php";
+import "views/backend/admin/products/partials/_categorie_frm.php";
 import "views/backend/admin/products/product_details.php";
 import "views/backend/admin/products/new_product.php";
 import "views/backend/admin/products/allunits.php";
@@ -113,6 +116,8 @@ import "views/backend/admin/shipping/partials/_shipping_frm.php";
 //admin contact page
 import "views/backend/admin/home/contact-us.php";
 //admin users page
+import "views/backend/admin/users/partials/_user_frm.php";
+import "views/backend/admin/users/partials/_user_permissions_frm.php";
 import "views/backend/admin/users/allusers.php";
 import "views/backend/admin/users/profile.php";
 import "views/backend/admin/users/permissions.php";

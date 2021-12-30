@@ -75,7 +75,8 @@ class FormsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class)->assign($data)->softDelete(true)->setselect2Data($data)->current_ctrl_method('add');
-                method_exists('Form_rules', strtolower($table)) ? $model->validator(H::getObjectProperties($model), Form_rules::$table()) : '';
+                $rules = isset($data['validator_rules']) ? $data['validator_rules'] : $table;
+                method_exists('Form_rules', strtolower($rules)) ? $model->validator(H::getObjectProperties($model), Form_rules::$rules()) : '';
                 if ($model->validationPasses()) {
                     $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : '';
                     $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model);
@@ -195,17 +196,17 @@ class FormsController extends Controller
                     AuthManager::check_UserSession();
                     $model->populate($data)->setselect2Data($data);
                     $model->id = $data[$colID];
-                    method_exists('Form_rules', $table) ? $model->validator(H::getObjectProperties($model), Form_rules::$table()) : '';
+                    $rules = isset($data['validator_rules']) ? $data['validator_rules'] : $table;
+                    method_exists('Form_rules', $rules) ? $model->validator(H::getObjectProperties($model), Form_rules::$rules()) : '';
                     if ($model->validationPasses()) {
                         $file = $this->uploadHelper->upload_files($this->request->getFiles(), $model, $this->container);
                         if ($file['success']) {
                             $model = $file['msg'];
-                            $action = ($table == 'users' && isset($data['action'])) ? $data['action'] : '';
                             if ($model->manageCheckboxes($data)->save($data)->count() === 1) {
                                 (!empty($categories)) ? $model->saveCategories($categories, 'post_categorie') : '';
                                 if ($this->uploadHelper->manage_uploadImage($model, $data, $this->request, $this->container)) {
                                     $this->container->make(NotificationManager::class)->notify(AuthManager::currentUser()->userID, $data['notification'] ?? 'Admin', 'A' . $table . ' has been updated');
-                                    $this->jsonResponse(['result' => 'success', 'msg' => $model->get_successMessage('update', isset($data['msg']) ? $data['msg'] : '')]);
+                                    $this->jsonResponse(['result' => 'success', 'msg' => $model->get_successMessage('update', isset($data['msg']) ? $data : []), 'url'=>$this->uploadHelper->get_uploadedUrl($model)]);
                                 } else {
                                     $this->jsonResponse(['result' => 'error', 'msg' => 'Unable to save Media Urls']);
                                 }
@@ -260,10 +261,10 @@ class FormsController extends Controller
             if ($data['csrftoken'] && $this->token->validateToken($data['csrftoken'], $data['frm_name'])) {
                 $table = str_replace(' ', '', ucwords(str_replace('_', ' ', $data['table'])));
                 $model = $this->container->make($table . 'Manager'::class);
-                in_array(strtolower($table), ['contacts', 'assoc', 'users']) ? $model->set_SoftDelete(true) : '';
+                in_array(strtolower($table), ['contacts', 'assoc', 'users']) ? $model->softDelete(true) : '';
                 $method = isset($data['method']) && $data['method'] != '' ? $data['method'] : 'delete';
                 if ($model->$method($data[$model->get_colID()], $data)) {
-                    $SuccessMsg = $model->get_successMessage('delete', $data['custom_message'] ?? '');
+                    $SuccessMsg = $model->get_successMessage('delete', $data);
                     $this->container->make(NotificationManager::class)->notify(AuthManager::currentUser()->userID, $data['notification'] ?? 'Admin', $SuccessMsg);
                     $model = null;
                     $this->jsonResponse(['result' => 'success', 'msg' => $SuccessMsg]);

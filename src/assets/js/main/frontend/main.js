@@ -22,22 +22,19 @@ class Main {
     var phpPlugin = this;
 
     document.querySelector("link[type='image/ico']").href = HOST + favicon;
-    //=======================================================================
-    //Init operation
-    //=======================================================================
+    /**
+     * Currency Management
+     * =======================================================================
+     */
     const operation = new OP();
-    // // Currency
-    // let currency = new Intl.NumberFormat("de-FR", {
-    //   style: "currency",
-    //   currency: "EUR",
-    // });
     operation._format_money({
       wrapper: phpPlugin.wrapper,
       fields: [".price .product_regular_price"],
     });
-    //=======================================================================
-    //Add to cart
-    //=======================================================================
+    /**
+     * Add to Cart
+     * ========================================================================
+     */
     phpPlugin.wrapper.on("submit", ".add_to_cart_frm", function (e) {
       e.preventDefault();
       var data = {

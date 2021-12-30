@@ -66,6 +66,31 @@ class Form_rules
         ];
     }
 
+    public static function backend_users()
+    {
+        return [
+        'firstName' => [
+            'required' => true,
+            'min' => 2,
+            'max' => 64,
+            'display' => 'Firstname',
+        ],
+        'lastName' => [
+            'required' => true,
+            'min' => 2,
+            'max' => 64,
+            'display' => 'Lastname',
+        ],
+        'email' => [
+            'display' => 'Email',
+            'required' => true,
+            'unique' => 'users',
+            'max' => 150,
+            'valid_email' => true,
+        ],
+    ];
+    }
+
     //Users datas
     public static function users(bool $table_users = true)
     {

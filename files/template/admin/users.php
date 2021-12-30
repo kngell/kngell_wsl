@@ -47,7 +47,7 @@
                             <input type="hidden" name='userID' value="{{userID}}">
                             <input type="hidden" name='user-method' value="{{method}}">
                             <div id="edit_user{{userID}}" class="edit-user" {{style_edit}}>
-                                <button type="submit" class="editBtn" data-bs-toggle="modal" data-bs-target="#modal-box"
+                                <button type="button" class="editBtn" data-bs-toggle="modal" data-bs-target="#modal-box"
                                     title="Edit"> <i class="far fa-edit fa-lg"></i></button>
                             </div>
                         </form>

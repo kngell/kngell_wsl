@@ -65,6 +65,11 @@ class ProductsManager extends Model
             endwhile;
             $this->p_slug = $slug;
         }
+        $this->p_unitID = $this->p_unitID == '[]' ? null : $this->p_unitID;
+        $this->p_warehouse = $this->p_warehouse == '[]' ? null : $this->p_warehouse;
+        $this->p_company = $this->p_company == '[]' ? null : $this->p_company;
+        $this->p_stock_threshold = $this->p_stock_threshold == '' ? null : $this->p_stock_threshold;
+
         $slug = null;
 
         return true;

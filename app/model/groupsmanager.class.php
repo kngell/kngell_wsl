@@ -9,6 +9,7 @@ class GroupsManager extends Model
     protected string $_colIndex = 'parentID';
     protected string $_colTitle = 'name';
     protected string $_colContent = '';
+    protected array  $select2_field = ['parentID'];
 
     //=======================================================================
     //construct
@@ -84,17 +85,6 @@ class GroupsManager extends Model
 
     public function updateGroup(string $grID = '')
     {
-    }
-
-    // Insert
-    public function beforeSave(array $params = []) : mixed
-    {
-        parent::beforeSave();
-        if ($this->status == 'on') {
-            $this->status = '1';
-        }
-
-        return true;
     }
 
     //delete
